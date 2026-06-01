@@ -1,0 +1,71 @@
+.privacy-page-bg {
+    background: radial-gradient(circle at bottom left, #222d5a 0%, #000000 60%);
+    min-height: 100vh;
+    background-attachment: fixed;
+    color: #ffffff;
+}
+
+.legal-content {
+    max-width: 800px;
+    margin: 5rem auto;
+    padding: 3rem;
+    background: rgba(255, 255, 255, 0.03);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 20px;
+    line-height: 1.8;
+}
+
+.legal-title {
+    font-size: 2.5rem;
+    margin-bottom: 0.5rem;
+    color: #ffffff;
+}
+
+.last-updated {
+    color: #a78afe;
+    font-size: 0.9rem;
+    margin-bottom: 2.5rem;
+}
+
+.legal-section h2 {
+    font-size: 1.5rem;
+    margin-top: 2rem;
+    color: #ffc978;
+}
+
+.legal-section p {
+    color: #cccccc;
+    margin-bottom: 1rem;
+}
+
+.footer {
+    margin-top: 5rem;
+    padding: 2rem;
+    text-align: center;
+    border-top: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.footer-links {
+    display: flex;
+    justify-content: center;
+    gap: 2rem;
+    margin-bottom: 1rem;
+}
+
+.footer-links a {
+    color: #b8b8b8;
+    text-decoration: none;
+}
+
+.footer-links a:hover {
+    color: #a78afe;
+}
+
+.footer p {
+    color: #888;
+    font-size: 0.9rem;
+}
+
+body {
+    overflow: auto !important;
+}

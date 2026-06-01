@@ -1,0 +1,257 @@
+.download-page-bg {
+    background: radial-gradient(circle at bottom left, #222d5a 0%, #000000 60%);
+    min-height: 100vh;
+    background-attachment: fixed;
+    color: #ffffff;
+}
+
+.container {
+    width: 100%;
+    padding: 0 2rem;
+}
+
+.hero {
+    text-align: center;
+    padding: 6rem 0;
+}
+
+.version-tag {
+    width: max-content;
+    margin: auto;
+    padding: .8rem 1.5rem;
+
+    border-radius: 999px;
+
+    background:
+        rgba(255, 255, 255, .05);
+
+    border: 1px solid rgba(255, 255, 255, .1);
+
+    backdrop-filter: blur(10px);
+}
+
+.hero h1 {
+    font-size: 5rem;
+    margin: 2rem 0;
+
+    background:
+        linear-gradient(to bottom,
+            white,
+            #777);
+
+    -webkit-background-clip: text;
+    color: transparent;
+}
+
+.hero p {
+    max-width: 700px;
+    margin: auto;
+    color: #bdbdbd;
+    font-size: 1.1rem;
+}
+
+.download-btn {
+
+    display: inline-block;
+
+    margin-top: 2rem;
+
+    text-decoration: none;
+
+    padding: 1rem 2.5rem;
+
+    border-radius: 50px;
+
+    background:
+        linear-gradient(to right,
+            #89a8f5,
+            #e67d7d);
+
+    color: black;
+    font-weight: 700;
+
+    transition: .3s;
+}
+
+.download-btn:hover {
+    transform: translateY(-5px);
+}
+
+.features {
+
+    margin-top: 5rem;
+
+    display: grid;
+
+    grid-template-columns:
+        repeat(auto-fit, minmax(250px, 1fr));
+
+    gap: 2rem;
+}
+
+.feature-card {
+
+    background:
+        rgba(255, 255, 255, .05);
+
+    border: 1px solid rgba(255, 255, 255, .1);
+
+    backdrop-filter: blur(20px);
+
+    padding: 2rem;
+
+    border-radius: 20px;
+
+    transition: 0.3s ease;
+}
+
+.feature-card:hover {
+    transform: translateY(-10px) scale(1.02);
+    box-shadow: 0 0 25px rgba(127, 66, 167, 0.25);
+}
+
+.feature-card h3 {
+    font-size: 1.3rem;
+    margin-bottom: 10px;
+}
+
+.feature-card p {
+    color: #bdbdbd;
+    font-size: 0.95rem;
+    line-height: 1.4;
+}
+
+.download-info {
+    padding: 5rem 0;
+}
+
+.glass-card {
+
+    max-width: 900px;
+    margin: auto;
+
+    background:
+        rgba(255, 255, 255, .05);
+
+    border: 1px solid rgba(255, 255, 255, .1);
+
+    backdrop-filter: blur(20px);
+
+    border-radius: 25px;
+
+    padding: 3rem;
+}
+
+.glass-card h2 {
+    text-align: center;
+    margin-bottom: 2rem;
+}
+
+.info-grid {
+
+    display: grid;
+
+    grid-template-columns:
+        repeat(auto-fit, minmax(180px, 1fr));
+
+    gap: 2rem;
+
+    text-align: center;
+}
+
+.info-grid span {
+    color: #888;
+}
+
+.large {
+    display: block;
+    width: max-content;
+    margin: 3rem auto 0;
+}
+
+.getting-started {
+    padding: 5rem 0;
+}
+
+.getting-started h2 {
+    text-align: center;
+    margin-bottom: 2rem;
+    font-size: 2.5rem;
+}
+
+.step {
+    display: flex;
+    gap: 1.5rem;
+    align-items: flex-start;
+    margin-bottom: 2rem;
+}
+
+.step span {
+    min-width: 60px;
+    height: 60px;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    border-radius: 50%;
+
+    background: linear-gradient(to right,
+            #89a8f5,
+            #e67d7d);
+
+    color: #000;
+    font-weight: bold;
+}
+
+.step h3 {
+    margin-bottom: .5rem;
+}
+
+.step p {
+    color: #bdbdbd;
+}
+
+.footer {
+    margin-top: 5rem;
+    padding: 2rem;
+    text-align: center;
+    border-top: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.footer-links {
+    display: flex;
+    justify-content: center;
+    gap: 2rem;
+    margin-bottom: 1rem;
+}
+
+.footer-links a {
+    color: #b8b8b8;
+    text-decoration: none;
+}
+
+.footer-links a:hover {
+    color: #a78afe;
+}
+
+.footer p {
+    color: #888;
+    font-size: 0.9rem;
+}
+
+body {
+    overflow: auto !important;
+}
+
+@media(max-width:768px) {
+
+    .hero h1 {
+        font-size: 3rem;
+    }
+
+    .container {
+        padding: 0 1rem;
+    }
+
+}
