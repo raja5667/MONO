@@ -10,7 +10,6 @@ body {
     color: #e7e7e7;
     min-height: 100vh;
     line-height: 1.5;
-    overflow: hidden;
     -webkit-user-select: none; 
     -ms-user-select: none;  
     user-select: none;
