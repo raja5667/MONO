@@ -10,8 +10,8 @@ body {
     color: #e7e7e7;
     min-height: 100vh;
     line-height: 1.5;
-    -webkit-user-select: none; 
-    -ms-user-select: none;  
+    -webkit-user-select: none;
+    -ms-user-select: none;
     user-select: none;
 }
 
@@ -19,6 +19,8 @@ body {
     position: absolute;
     top: 0;
     right: 0;
+    width: 100%;
+    height: 100%;
     object-fit: 0.5;
     z-index: -1;
 }
@@ -57,7 +59,7 @@ header h1 {
     font-weight: 300;
 }
 
-.logo{
+.logo {
     background: linear-gradient(to right, #89a8f5, #e67d7d);
     -webkit-background-clip: text;
     background-clip: text;
@@ -67,13 +69,13 @@ header h1 {
     animation: fadeDown 1.5s ease forwards;
 }
 
-@keyframes fadeDown{
-    from{
+@keyframes fadeDown {
+    from {
         opacity: 0;
         transform: translateY(-40px);
     }
 
-    to{
+    to {
         opacity: 1;
         transform: translateY(0);
     }
@@ -225,10 +227,21 @@ nav a:hover {
 }
 
 @keyframes stretchSquash {
-    0% { transform: scale(1, 1); }
-    30% { transform: scale(1.1, 0.9); } 
-    60% { transform: scale(0.9, 1.1); } 
-    100% { transform: scale(1, 1); }   
+    0% {
+        transform: scale(1, 1);
+    }
+
+    30% {
+        transform: scale(1.1, 0.9);
+    }
+
+    60% {
+        transform: scale(0.9, 1.1);
+    }
+
+    100% {
+        transform: scale(1, 1);
+    }
 }
 
 .robot-3d {
@@ -312,6 +325,11 @@ nav a:hover {
 
 /* Mobile & Small Tablet Adjustments */
 @media (max-width: 768px) {
+
+    .layer-blur {
+        width: 15rem;
+        box-shadow: 0 0 300px 10px white;
+    }
 
     /* Hide Robot */
     .robot-3d {
