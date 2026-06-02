@@ -1,19 +1,8 @@
 .blog-page-bg {
-    position: relative;
-    color: #fff;
-}
-
-.blog-page-bg::before {
-    content: "";
-    position: fixed;
-    inset: 0;
-    z-index: -1;
-
-    background: radial-gradient(circle at bottom left,
-            #222d5a 0%,
-            #000000 60%);
-
-    background-size: cover;
+    background: radial-gradient(circle at bottom left, #222d5a 0%, #000000 60%);
+    min-height: 100vh;
+    background-attachment: fixed;
+    color: #ffffff;
 }
 
 .blog-main {
@@ -216,7 +205,7 @@ body {
         font-size: 2rem;
     }
 
-    .blog-subtitle {
+    .blog-subtitle{
         text-align: center;
     }
 
