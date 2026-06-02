@@ -11,16 +11,21 @@ body {
     min-height: 100vh;
     line-height: 1.5;
     overflow: hidden;
-    -webkit-user-select: none; 
-    -ms-user-select: none;  
+    -webkit-user-select: none;
+    -ms-user-select: none;
     user-select: none;
 }
 
-.image-gradient {
-    position: absolute;
-    top: 0;
-    right: 0;
-    object-fit: 0.5;
+body::before {
+    content: "";
+    position: fixed;
+    inset: 0;
+    background-image: url("img/gradient.png");
+    background-repeat: no-repeat;
+    background-position: top right;
+    background-size: cover;
+    opacity: 0.7;
+    pointer-events: none;
     z-index: -1;
 }
 
@@ -58,7 +63,7 @@ header h1 {
     font-weight: 300;
 }
 
-.logo{
+.logo {
     background: linear-gradient(to right, #89a8f5, #e67d7d);
     -webkit-background-clip: text;
     background-clip: text;
@@ -68,13 +73,13 @@ header h1 {
     animation: fadeDown 1.5s ease forwards;
 }
 
-@keyframes fadeDown{
-    from{
+@keyframes fadeDown {
+    from {
         opacity: 0;
         transform: translateY(-40px);
     }
 
-    to{
+    to {
         opacity: 1;
         transform: translateY(0);
     }
@@ -226,10 +231,21 @@ nav a:hover {
 }
 
 @keyframes stretchSquash {
-    0% { transform: scale(1, 1); }
-    30% { transform: scale(1.1, 0.9); } 
-    60% { transform: scale(0.9, 1.1); } 
-    100% { transform: scale(1, 1); }   
+    0% {
+        transform: scale(1, 1);
+    }
+
+    30% {
+        transform: scale(1.1, 0.9);
+    }
+
+    60% {
+        transform: scale(0.9, 1.1);
+    }
+
+    100% {
+        transform: scale(1, 1);
+    }
 }
 
 .robot-3d {
@@ -484,18 +500,4 @@ nav a:hover {
         font-size: 2.5rem;
     }
 
-     .image-gradient {
-        width: 120%;
-        right: -30%;
-        top: -50px;
-        opacity: 0.7;
-    }
-
-    .layer-blur {
-        width: 15rem;
-        top: 10%;
-        right: -20%;
-        box-shadow: 0 0 250px 10px white;
-        transform: rotate(-20deg);
-    }
 }
