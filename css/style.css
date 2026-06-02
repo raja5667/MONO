@@ -483,4 +483,19 @@ nav a:hover {
     .content h1 {
         font-size: 2.5rem;
     }
+
+     .image-gradient {
+        width: 120%;
+        right: -30%;
+        top: -50px;
+        opacity: 0.7;
+    }
+
+    .layer-blur {
+        width: 15rem;
+        top: 10%;
+        right: -20%;
+        box-shadow: 0 0 250px 10px white;
+        transform: rotate(-20deg);
+    }
 }
