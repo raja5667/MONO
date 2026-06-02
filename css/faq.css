@@ -1,7 +1,7 @@
 .faq-page-bg {
     background: radial-gradient(circle at bottom left, #222d5a 0%, #000000 60%);
     min-height: 100vh;
-    background-attachment: scroll;
+    background-attachment: fixed;
     color: #ffffff;
 }
 
