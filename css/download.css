@@ -63,17 +63,14 @@
 }
 
 .download-btn {
-
-    display: inline-block;
-
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
     margin-top: 2rem;
-
     text-decoration: none;
-
     padding: 1rem 2.5rem;
-
     border-radius: 50px;
-
     background:
         linear-gradient(to right,
             #89a8f5,
@@ -81,12 +78,36 @@
 
     color: black;
     font-weight: 700;
-
     transition: .3s;
 }
 
+.btn-icon {
+    width: 20px;
+    height: 20px;
+    filter: brightness(0);
+}
+
 .download-btn:hover {
-    transform: translateY(-5px);
+    background: linear-gradient(to right, #c1c9fa, #f2c1c1);
+    animation: stretchSquash 0.5s 1 ease-in-out;
+}
+
+@keyframes stretchSquash {
+    0% {
+        transform: scale(1, 1);
+    }
+
+    30% {
+        transform: scale(1.1, 0.9);
+    }
+
+    60% {
+        transform: scale(0.9, 1.1);
+    }
+
+    100% {
+        transform: scale(1, 1);
+    }
 }
 
 .features {
@@ -179,6 +200,21 @@
     display: block;
     width: max-content;
     margin: 3rem auto 0;
+    text-decoration: none;
+    padding: 1rem 2.5rem;
+    border-radius: 50px;
+    background:
+        linear-gradient(to right,
+            #89a8f5,
+            #e67d7d);
+
+    color: black;
+    font-weight: 700;
+    transition: .3s;
+}
+
+.large:hover {
+    transform: translateY(-5px);
 }
 
 .getting-started {
