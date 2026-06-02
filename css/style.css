@@ -336,10 +336,7 @@ nav a:hover {
     }
 
     .layer-blur {
-        width: 10rem;
-        box-shadow: 0 0 120px 10px white;
-        top: 8%;
-        right: 0;
+        display: none;
     }
 
     /* Hide Robot */
