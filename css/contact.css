@@ -1,8 +1,20 @@
 .contact-page-bg {
-    background: radial-gradient(circle at bottom left, #222d5a 0%, #000000 60%);
+    position: relative;
     min-height: 100vh;
-    background-attachment: fixed;
-    color: #ffffff;
+    color: #fff;
+}
+
+.contact-page-bg::before {
+    content: "";
+    position: fixed;
+    inset: 0;
+    z-index: -1;
+
+    background: radial-gradient(circle at bottom left,
+            #222d5a 0%,
+            #000000 60%);
+
+    background-size: cover;
 }
 
 .contact-main {
@@ -54,7 +66,6 @@
 }
 
 .footer {
-    margin-top: 5rem;
     padding: 2rem;
     text-align: center;
     border-top: 1px solid rgba(255, 255, 255, 0.1);
