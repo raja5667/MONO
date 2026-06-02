@@ -330,6 +330,11 @@ nav a:hover {
 /* Mobile & Small Tablet Adjustments */
 @media (max-width: 768px) {
 
+    body::before {
+        background-size: 140%;
+        background-position: top right;
+    }
+
     /* Hide Robot */
     .robot-3d {
         display: none;
