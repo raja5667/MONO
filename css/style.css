@@ -68,7 +68,7 @@ header h1 {
     -webkit-background-clip: text;
     background-clip: text;
     color: transparent;
-    cursor: default;
+    cursor: pointer;
     opacity: 0;
     animation: fadeDown 1.5s ease forwards;
 }
@@ -127,6 +127,10 @@ nav a:nth-child(3) {
 
 nav a:nth-child(4) {
     animation-delay: 0.8s;
+}
+
+nav a:nth-child(5) {
+    animation-delay: 1s;
 }
 
 nav a:hover {
@@ -467,6 +471,10 @@ nav a:hover {
 
     nav.active a:nth-child(4) {
         animation-delay: .4s;
+    }
+
+    nav.active a:nth-child(5) {
+        animation-delay: .5s;
     }
 
     .menu-overlay {
