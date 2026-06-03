@@ -228,9 +228,19 @@
     color: #a78afe;
 }
 
+.footer p img{
+    height: 25px;
+    width: 25px;
+}
+
 .footer p {
+    display: flex;
+    flex-direction: row;
     color: #888;
     font-size: 0.9rem;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
 }
 
 .footer-ad {
