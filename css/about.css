@@ -242,3 +242,15 @@
 body {
     overflow: auto !important;
 }
+
+@media (max-width: 425px) {
+
+    .benefits-slider::before {
+        background: linear-gradient(to right, #0000006e, transparent);
+    }
+
+    .benefits-slider::after {
+        background: linear-gradient(to right, #00000000, transparent);
+    }
+
+}
