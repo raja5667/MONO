@@ -39,7 +39,6 @@ class Particle {
         this.speedX = Math.random() * 2 - 1;
         this.speedY = Math.random() * 2 - 1;
 
-        // Randomly choose between your gradient colors
         const colors = ['#89a8f5', '#e67d7d'];
         this.color = colors[Math.floor(Math.random() * colors.length)];
     }
@@ -57,19 +56,27 @@ class Particle {
         ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2);
         ctx.fill();
 
-        // Reset shadow to keep performance high
         ctx.shadowBlur = 0;
     }
 }
 
-document.addEventListener('mousemove', (e) => {
-    // Only trigger if screen is mobile size
+function createParticles(x, y) {
     if (window.innerWidth <= 768) {
         for (let i = 0; i < 3; i++) {
-            particles.push(new Particle(e.clientX, e.clientY));
+            particles.push(new Particle(x, y));
         }
     }
+}
+
+document.addEventListener('mousemove', (e) => {
+    createParticles(e.clientX, e.clientY);
 });
+
+document.addEventListener('touchmove', (e) => {
+    if (e.touches.length > 0) {
+        createParticles(e.touches[0].clientX, e.touches[0].clientY);
+    }
+}, { passive: false });
 
 function animate() {
     ctx.clearRect(0, 0, canvas.width, canvas.height);
