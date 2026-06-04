@@ -15,7 +15,7 @@ downloadButtons.forEach(button => {
         }, 1500);
 
         setTimeout(() => {
-            window.location.href = "software/YT-MP3.zip";
+            window.location.href = "software/YT-MP3 Pro.zip";
             textSpan.textContent = originalText; 
             button.style.pointerEvents = "auto";
             button.classList.remove("downloading");
