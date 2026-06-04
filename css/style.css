@@ -29,6 +29,24 @@ body::before {
     z-index: -1;
 }
 
+::-webkit-scrollbar {
+    width: 8px;
+}
+
+::-webkit-scrollbar-track {
+    background: #000000;
+}
+
+::-webkit-scrollbar-thumb {
+    background: #333333;
+    border-radius: 10px;
+    border: 2px solid #000000;
+}
+
+::-webkit-scrollbar-thumb:hover {
+    background: #555555;
+}
+
 .layer-blur {
     position: absolute;
     top: 20%;
@@ -334,6 +352,10 @@ nav a:hover {
 /* Mobile & Small Tablet Adjustments */
 @media (max-width: 768px) {
 
+    body {
+        background: radial-gradient(circle at center, #1a1a2e 0%, #000000 100%);
+    }
+
     body::before {
         background-size: 140%;
         background-position: top right;
@@ -341,6 +363,10 @@ nav a:hover {
 
     .layer-blur {
         display: none;
+    }
+
+    #sparkle-canvas {
+        display: block !important;
     }
 
     /* Hide Robot */

@@ -18,3 +18,67 @@ if (logo) {
         window.location.href = "index.html";
     });
 }
+
+const canvas = document.getElementById('sparkle-canvas');
+const ctx = canvas.getContext('2d');
+let particles = [];
+
+function resizeCanvas() {
+    canvas.width = window.innerWidth;
+    canvas.height = window.innerHeight;
+}
+
+window.addEventListener('resize', resizeCanvas);
+resizeCanvas();
+
+class Particle {
+    constructor(x, y) {
+        this.x = x;
+        this.y = y;
+        this.size = Math.random() * 3 + 0.5;
+        this.speedX = Math.random() * 2 - 1;
+        this.speedY = Math.random() * 2 - 1;
+
+        // Randomly choose between your gradient colors
+        const colors = ['#89a8f5', '#e67d7d'];
+        this.color = colors[Math.floor(Math.random() * colors.length)];
+    }
+
+    update() {
+        this.x += this.speedX;
+        this.y += this.speedY;
+        this.size *= 0.95;
+    }
+    draw() {
+        ctx.shadowBlur = 10;
+        ctx.shadowColor = this.color;
+        ctx.fillStyle = this.color;
+        ctx.beginPath();
+        ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2);
+        ctx.fill();
+
+        // Reset shadow to keep performance high
+        ctx.shadowBlur = 0;
+    }
+}
+
+document.addEventListener('mousemove', (e) => {
+    // Only trigger if screen is mobile size
+    if (window.innerWidth <= 768) {
+        for (let i = 0; i < 3; i++) {
+            particles.push(new Particle(e.clientX, e.clientY));
+        }
+    }
+});
+
+function animate() {
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    particles = particles.filter(p => p.size > 0.2);
+    particles.forEach(p => {
+        p.update();
+        p.draw();
+    });
+    requestAnimationFrame(animate);
+}
+
+animate();

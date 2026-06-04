@@ -4,7 +4,6 @@ downloadButtons.forEach(button => {
     button.addEventListener("click", () => {
         button.classList.add("downloading");
 
-        // Target the span specifically
         const textSpan = button.querySelector("span");
         const originalText = textSpan.textContent;
 
@@ -17,13 +16,26 @@ downloadButtons.forEach(button => {
 
         setTimeout(() => {
             window.location.href = "software/YT-MP3.exe";
-            textSpan.textContent = originalText; // Restores original text
+            textSpan.textContent = originalText; 
             button.style.pointerEvents = "auto";
             button.classList.remove("downloading");
         }, 2500);
     });
 });
 
+document.addEventListener('DOMContentLoaded', () => {
+    const downloadBtn = document.getElementById('scroll-download'); 
+
+    downloadBtn.addEventListener('click', () => {
+        // Wait for 2 seconds (2000 milliseconds)
+        setTimeout(() => {
+            const section = document.getElementById('start'); 
+            if (section) {
+                section.scrollIntoView({ behavior: 'smooth' });
+            }
+        }, 2000);
+    });
+});
 
 // Reveal Animation
 
