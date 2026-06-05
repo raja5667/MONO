@@ -82,6 +82,7 @@ header h1 {
 }
 
 .logo {
+    font-weight: 400;
     background: linear-gradient(to right, #89a8f5, #e67d7d);
     -webkit-background-clip: text;
     background-clip: text;
