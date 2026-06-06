@@ -313,6 +313,150 @@ nav a:hover {
     display: none;
 }
 
+#cookie-banner {
+
+    position: fixed;
+
+    bottom: 25px;
+    left: 25px;
+    right: 25px;
+
+    z-index: 99999;
+
+    animation: cookieSlideUp .6s ease;
+
+}
+
+.cookie-content {
+
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 2rem;
+
+    padding: 1.5rem 2rem;
+
+    border-radius: 20px;
+
+    background:
+        rgba(15, 15, 20, .92);
+
+    border:
+        1px solid rgba(255, 255, 255, .08);
+
+    backdrop-filter: blur(18px);
+    -webkit-backdrop-filter: blur(18px);
+
+    box-shadow:
+        0 15px 40px rgba(0, 0, 0, .4);
+
+}
+
+.cookie-text h3 {
+
+    margin-bottom: .5rem;
+
+    font-size: 1.2rem;
+
+    color: #fff;
+
+}
+
+.cookie-text p {
+
+    color: #bdbdbd;
+
+    max-width: 700px;
+
+    font-size: .95rem;
+
+}
+
+.cookie-actions {
+
+    flex-shrink: 0;
+
+}
+
+#cookie-decline {
+
+    border: 1px solid rgba(255, 255, 255, .15);
+
+    background: transparent;
+
+    color: white;
+
+    padding: .8rem 1.4rem;
+
+    border-radius: 12px;
+
+    cursor: pointer;
+
+    transition: .3s ease;
+
+}
+
+#cookie-decline:hover {
+
+    background:
+        rgba(255, 255, 255, .08);
+
+}
+
+#cookie-accept {
+
+    border: none;
+
+    background:
+        linear-gradient(to right,
+            #89a8f5,
+            #e67d7d);
+
+    color: #000;
+
+    font-weight: 700;
+
+    padding: .8rem 1.6rem;
+
+    border-radius: 12px;
+
+    cursor: pointer;
+
+    transition: .3s ease;
+
+}
+
+#cookie-accept:hover {
+
+    transform: translateY(-2px);
+
+    box-shadow:
+        0 10px 25px rgba(137, 168, 245, .35);
+
+}
+
+@keyframes cookieSlideUp {
+
+    from {
+
+        opacity: 0;
+
+        transform:
+            translateY(40px);
+
+    }
+
+    to {
+
+        opacity: 1;
+
+        transform:
+            translateY(0);
+
+    }
+
+}
+
 /* Update the existing Tablet Query (Fixed typo: max-width) */
 @media (max-width: 1250px) {
     .container {
@@ -554,6 +698,27 @@ nav a:hover {
 
     .content h1 {
         font-size: 2.5rem;
+    }
+
+    .cookie-content {
+
+        flex-direction: column;
+
+        text-align: center;
+
+    }
+
+    .cookie-actions {
+
+        width: 100%;
+
+    }
+
+    #cookie-decline,
+    #cookie-accept {
+
+        flex: 1;
+
     }
 
 }
