@@ -700,6 +700,10 @@ nav a:hover {
         font-size: 2.5rem;
     }
 
+    .button{
+        flex-direction: column;
+    }
+
     .cookie-content {
 
         flex-direction: column;

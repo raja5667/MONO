@@ -20,6 +20,109 @@
     <link rel="stylesheet" href="css/style.css">
     <link rel="stylesheet" href="css/loader.css">
     <link rel="stylesheet" href="https://unpkg.com/aos@next/dist/aos.css" />
+
+    <style>
+        /* ── Try it out button ── */
+        .btn-tryout {
+            display: inline-flex;
+            align-items: center;
+            gap: 10px;
+            text-decoration: none;
+            padding: 0.6rem 1.8rem;
+            border-radius: 50px;
+            font-size: 1rem;
+            font-weight: 600;
+            letter-spacing: 0.05em;
+            position: relative;
+            color: #fff;
+            border: none;
+            cursor: pointer;
+            background: transparent;
+            isolation: isolate;
+            transition: transform 0.25s ease, box-shadow 0.25s ease;
+        }
+
+        /* Animated gradient border */
+        .btn-tryout::before {
+            content: "";
+            position: absolute;
+            inset: 0;
+            border-radius: 50px;
+            padding: 1.5px;
+            background: linear-gradient(90deg, #89a8f5, #e67d7d, #a78afe, #89a8f5);
+            background-size: 300%;
+            -webkit-mask:
+                linear-gradient(#fff 0 0) content-box,
+                linear-gradient(#fff 0 0);
+            mask:
+                linear-gradient(#fff 0 0) content-box,
+                linear-gradient(#fff 0 0);
+            -webkit-mask-composite: xor;
+            mask-composite: exclude;
+            animation: borderSpin 3s linear infinite;
+            z-index: -1;
+        }
+
+        /* Dark fill inside */
+        .btn-tryout::after {
+            content: "";
+            position: absolute;
+            inset: 1.5px;
+            border-radius: 50px;
+            background: rgba(0, 0, 0, 0.7);
+            backdrop-filter: blur(6px);
+            z-index: -1;
+            transition: background 0.25s ease;
+        }
+
+        .btn-tryout:hover::after {
+            background: rgba(137, 168, 245, 0.1);
+        }
+
+        .btn-tryout:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 0 20px rgba(137, 168, 245, 0.25);
+        }
+
+        @keyframes borderSpin {
+            to { background-position: 300%; }
+        }
+
+        /* Waveform icon inside button */
+        .btn-tryout-bars {
+            display: flex;
+            align-items: center;
+            gap: 2px;
+            height: 14px;
+        }
+
+        .btn-tryout-bars span {
+            display: block;
+            width: 2px;
+            border-radius: 2px;
+            background: linear-gradient(to top, #89a8f5, #e67d7d);
+            animation: miniwave 1.2s ease-in-out infinite;
+        }
+
+        .btn-tryout-bars span:nth-child(1) { animation-delay: 0s;   height: 4px; }
+        .btn-tryout-bars span:nth-child(2) { animation-delay: .15s; height: 10px; }
+        .btn-tryout-bars span:nth-child(3) { animation-delay: .3s;  height: 14px; }
+        .btn-tryout-bars span:nth-child(4) { animation-delay: .15s; height: 10px; }
+        .btn-tryout-bars span:nth-child(5) { animation-delay: 0s;   height: 4px; }
+
+        @keyframes miniwave {
+            0%, 100% { transform: scaleY(0.4); opacity: 0.5; }
+            50%       { transform: scaleY(1);   opacity: 1; }
+        }
+
+        /* Layout: both buttons side by side */
+        .button {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            flex-wrap: wrap;
+        }
+    </style>
 </head>
 
 <body>
@@ -66,8 +169,14 @@
                 </P>
 
                 <div data-aos="fade-zoom-in" data-aos-easing="ease-in-back" data-aos-delay="300" data-aos-offset="0"
-                    data-aos-duration="3000" class="buttons">
+                    data-aos-duration="3000" class="button">
                     <a href="download.html" class="btn-get-download">GO TO DOWNLOAD &gt;</a>
+                    <a href="tryout.html" class="btn-tryout">
+                        <div class="btn-tryout-bars">
+                            <span></span><span></span><span></span><span></span><span></span>
+                        </div>
+                        Try it out
+                    </a>
                 </div>
             </div>
         </main>

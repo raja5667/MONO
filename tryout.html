@@ -1,0 +1,201 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="theme-color" content="#000000">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black">
+    <meta name="mobile-web-app-capable" content="yes">
+    <title>Try YTMP3 Pro Online | Live Converter</title>
+
+    <meta name="description"
+        content="Try YTMP3 Pro in your browser. Paste a YouTube link and convert it to high-quality MP3 audio instantly using your local server.">
+    <meta name="keywords"
+        content="YTMP3 Pro, YTMP3, ytmp3, youtube to mp3, mp3 converter, youtube downloader, free mp3 download">
+    <link rel="icon" type="image/png" href="img/favicon.png">
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="css/tryout.css">
+    <link rel="stylesheet" href="https://unpkg.com/aos@next/dist/aos.css" />
+</head>
+
+<body class="tryout-page-bg">
+        <header>
+            <h1 class="logo">MONO</h1>
+
+            <div data-aos="fade-left" data-aos-duration="1500" class="hamburger">
+                ☰
+            </div>
+
+            <nav>
+                <a href="index.html">Home</a>
+                <a href="download.html">Download</a>
+                <a href="about.html">About</a>
+                <a href="faq.html">FAQ</a>
+                <a href="contact.html">Contact</a>
+            </nav>
+        </header>
+    <div class="menu-overlay"></div>
+    <main class="tryout-main">
+
+        <!-- Hero -->
+        <section class="tryout-hero">
+            <div class="tryout-chip">
+                <span class="chip-dot"></span>
+                Live Converter
+            </div>
+            <h1>Convert Music<br><span class="accent">Instantly</span></h1>
+            <p>Paste a YouTube link and get a high-quality MP3 in seconds.</p>
+
+            <div class="waveform" id="waveform">
+                <div class="wave-bar paused"></div>
+                <div class="wave-bar paused"></div>
+                <div class="wave-bar paused"></div>
+                <div class="wave-bar paused"></div>
+                <div class="wave-bar paused"></div>
+                <div class="wave-bar paused"></div>
+                <div class="wave-bar paused"></div>
+                <div class="wave-bar paused"></div>
+                <div class="wave-bar paused"></div>
+                <div class="wave-bar paused"></div>
+                <div class="wave-bar paused"></div>
+                <div class="wave-bar paused"></div>
+                <div class="wave-bar paused"></div>
+            </div>
+        </section>
+
+        <!-- Input card -->
+        <div class="input-card" id="input-card">
+            <div class="input-label">YouTube URL</div>
+            <div class="url-row">
+                <span class="url-icon">⟁</span>
+                <input id="url-input" type="text" placeholder="Paste a YouTube link or playlist…"
+                    autocomplete="off" spellcheck="false" />
+                <span id="url-badge" class="url-badge"></span>
+                <button id="url-clear" class="url-clear" title="Clear">✕</button>
+            </div>
+
+            <!-- Video preview -->
+            <div class="video-preview" id="video-preview">
+                <div class="thumb-wrap" id="thumb-wrap">
+                    <div class="thumb-skeleton" id="thumb-skeleton"></div>
+                    <img id="thumb-img" src="" alt=""
+                        style="opacity:0;position:absolute;inset:0;width:100%;height:100%;object-fit:cover;border-radius:10px;transition:opacity 0.3s" />
+                    <div class="thumb-overlay"><span class="thumb-dur" id="thumb-dur"></span></div>
+                </div>
+                <div class="video-meta" id="video-meta">
+                    <div class="sk-title video-skeleton" id="sk-title"></div>
+                    <div class="sk-sub video-skeleton" id="sk-sub"></div>
+                    <div class="video-title" id="vid-title" style="display:none"></div>
+                    <div class="video-channel" id="vid-channel" style="display:none"></div>
+                </div>
+            </div>
+
+            <div class="btn-row">
+                <button class="btn-primary" id="btn-download">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+                        <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
+                        <polyline points="7 10 12 15 17 10"/>
+                        <line x1="12" y1="15" x2="12" y2="3"/>
+                    </svg>
+                    Download MP3
+                </button>
+                <button class="btn-secondary" id="btn-cancel" disabled>
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+                        <line x1="18" y1="6" x2="6" y2="18"/>
+                        <line x1="6" y1="6" x2="18" y2="18"/>
+                    </svg>
+                    Cancel
+                </button>
+            </div>
+        </div>
+
+        <!-- Progress card -->
+        <div class="progress-card" id="progress-card">
+            <div class="prog-header">
+                <div style="display:flex;align-items:center;gap:10px;flex:1;min-width:0">
+                    <div class="eq-wrap" id="eq-wrap">
+                        <div class="eq-bar"></div>
+                        <div class="eq-bar"></div>
+                        <div class="eq-bar"></div>
+                        <div class="eq-bar"></div>
+                    </div>
+                    <span id="status-msg">Processing…</span>
+                </div>
+                <span class="prog-pct" id="prog-pct">0%</span>
+            </div>
+            <div class="prog-track">
+                <div class="prog-fill" id="prog-fill"></div>
+            </div>
+            <div class="prog-meta">
+                <span id="skipped-msg"></span>
+                <span id="track-counter" style="color:#6b7280;font-size:11.5px"></span>
+            </div>
+        </div>
+
+        <!-- Features -->
+        <section class="features-wrap">
+            <div class="section-eyebrow">Why YTMP3 Pro</div>
+            <h2 class="section-heading">Everything you need</h2>
+            <p class="section-sub">Premium audio extraction, free forever.</p>
+            <div class="features-grid">
+                <div class="feat-card">
+                    <div class="feat-icon purple">🎵</div>
+                    <div class="feat-title">High Quality MP3</div>
+                    <div class="feat-desc">Best available bitrate — every note sounds exactly as intended.</div>
+                </div>
+                <div class="feat-card">
+                    <div class="feat-icon pink">📋</div>
+                    <div class="feat-title">Playlist Downloads</div>
+                    <div class="feat-desc">Drop an entire playlist and it converts every track automatically.</div>
+                </div>
+                <div class="feat-card">
+                    <div class="feat-icon blue">⚡</div>
+                    <div class="feat-title">Lightning Fast</div>
+                    <div class="feat-desc">Efficient processing keeps conversions quick even for large playlists.</div>
+                </div>
+                <div class="feat-card">
+                    <div class="feat-icon amber">🔒</div>
+                    <div class="feat-title">Private & Local</div>
+                    <div class="feat-desc">No account needed. Your data never leaves your machine.</div>
+                </div>
+                <div class="feat-card">
+                    <div class="feat-icon purple">🖼️</div>
+                    <div class="feat-title">Thumbnail Art</div>
+                    <div class="feat-desc">Embeds cover art and metadata so your music library stays clean.</div>
+                </div>
+                <div class="feat-card">
+                    <div class="feat-icon pink">🔊</div>
+                    <div class="feat-title">Volume Booster</div>
+                    <div class="feat-desc">Enhanced audio output for louder, clearer sound with zero distortion.</div>
+                </div>
+            </div>
+        </section>
+
+    </main>
+
+    <footer class="footer">
+        <div class="footer-links">
+            <a href="privacy.html">Privacy Policy</a>
+            <a href="terms.html">Terms</a>
+            <a href="contact.html">Contact</a>
+        </div>
+        <p>
+            <a href="https://github.com/raja5667" target="_blank" rel="noopener noreferrer">
+                <img src="svg/github-icon.svg" alt="GitHub" class="github-icon">
+            </a>
+            © 2026 YTMP3 Pro. All Rights Reserved.
+        </p>
+    </footer>
+
+    <div id="toast"></div>
+
+    <script src="https://unpkg.com/aos@next/dist/aos.js"></script>
+    <script>AOS.init();</script>
+    <script src="js/script.js"></script>
+    <script src="js/tryout.js"></script>
+    <script src="js/cookie-consent.js"></script>
+
+</body>
+</html>
