@@ -187,9 +187,14 @@ def api_meta():
         return jsonify({"error": "Invalid URL"}), 400
     try:
         opts: Dict[str, Any] = {
-            "quiet": True, "no_warnings": True, "skip_download": True,
-            "ignoreerrors": True, "noplaylist": False, "extract_flat": "in_playlist",
+            "quiet": True,
+            "no_warnings": True,
+            "skip_download": True,
+            "ignoreerrors": True,
+            "noplaylist": False,
+            "extract_flat": "in_playlist",
             "socket_timeout": 15,
+            "cookiesfrombrowser": ("chrome",),
         }
         with YoutubeDL(opts) as ydl:  # type: ignore[arg-type]
             info = ydl.extract_info(url, download=False)
@@ -282,6 +287,7 @@ def _make_opts(out_dir: str, noplaylist: bool = True) -> Dict[str, Any]:
     return {
         "format": "bestaudio/best",
         "outtmpl": outtmpl,
+        "cookiesfrombrowser": ("chrome",),
         "noplaylist": noplaylist,
         "quiet": True,
         "no_warnings": True,
@@ -317,8 +323,13 @@ def _download_worker(url: str, out_dir: str):
     state = download_state
     try:
         opts_meta: Dict[str, Any] = {
-            "quiet": True, "no_warnings": True, "skip_download": True,
-            "ignoreerrors": True, "noplaylist": False, "extract_flat": "in_playlist",
+            "quiet": True,
+            "no_warnings": True,
+            "skip_download": True,
+            "ignoreerrors": True,
+            "noplaylist": False,
+            "extract_flat": "in_playlist",
+            "cookiesfrombrowser": ("chrome",),
         }
         with download_lock:
             state["status"] = "Extracting metadata..."
