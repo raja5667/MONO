@@ -127,6 +127,15 @@ def debug():
         "platform": os.name
     }
 
+@app.route("/debug/cookies")
+def debug_cookies():
+    return jsonify({
+        "cookies_file": COOKIES_FILE,
+        "exists": os.path.exists(COOKIES_FILE) if COOKIES_FILE else False,
+        "site_dir": SITE_DIR,
+        "files_in_dir": os.listdir(SITE_DIR)
+    })
+
 @app.route("/<path:page>")
 def pages(page):
     filepath = os.path.join(SITE_DIR, page)
