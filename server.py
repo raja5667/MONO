@@ -119,9 +119,6 @@ def debug():
     return jsonify({
         "ffmpeg": shutil.which("ffmpeg"),
         "platform": os.name,
-        "cookies_file": COOKIES_FILE,
-        "cookies_exists": os.path.exists(COOKIES_FILE) if COOKIES_FILE else False,
-        "proxy": PROXY,
     })
 
 
