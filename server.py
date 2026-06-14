@@ -194,7 +194,7 @@ def api_meta():
             "noplaylist": False,
             "extract_flat": "in_playlist",
             "socket_timeout": 15,
-            "cookiesfrombrowser": ("chrome",),
+            "cookiefile": os.path.join(SITE_DIR, "cookies.txt"),
         }
         with YoutubeDL(opts) as ydl:  # type: ignore[arg-type]
             info = ydl.extract_info(url, download=False)
@@ -287,7 +287,7 @@ def _make_opts(out_dir: str, noplaylist: bool = True) -> Dict[str, Any]:
     return {
         "format": "bestaudio/best",
         "outtmpl": outtmpl,
-        "cookiesfrombrowser": ("chrome",),
+        "cookiefile": os.path.join(SITE_DIR, "cookies.txt"),
         "noplaylist": noplaylist,
         "quiet": True,
         "no_warnings": True,
@@ -329,7 +329,7 @@ def _download_worker(url: str, out_dir: str):
             "ignoreerrors": True,
             "noplaylist": False,
             "extract_flat": "in_playlist",
-            "cookiesfrombrowser": ("chrome",),
+            "cookiefile": os.path.join(SITE_DIR, "cookies.txt"),
         }
         with download_lock:
             state["status"] = "Extracting metadata..."
