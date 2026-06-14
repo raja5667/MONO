@@ -9,10 +9,8 @@ import re
 import shutil
 import socket
 import tempfile
-import subprocess
 import threading
 import logging
-import io
 from typing import Any, Dict, cast
 from pathlib import Path
 from flask import Flask, request, jsonify, send_file, Response
@@ -37,13 +35,11 @@ YOUTU_BE_REGEX = re.compile(
 
 
 def clean_youtube_url(url: str) -> str:
-    """Remove tracking params (si=, utm_*, etc.) that confuse yt-dlp."""
     import urllib.parse
     url = url.strip()
     try:
         p = urllib.parse.urlparse(url)
         qs = urllib.parse.parse_qs(p.query, keep_blank_values=True)
-        # Keep only essential params
         allowed = {'v', 'list', 'index', 't', 'start'}
         qs_clean = {k: v for k, v in qs.items() if k in allowed}
         clean_query = urllib.parse.urlencode(qs_clean, doseq=True)
@@ -101,13 +97,14 @@ download_state: Dict[str, Any] = {
     "last_file": None,
 }
 download_lock = threading.Lock()
-
 output_dir = str(DEFAULT_OUTPUT_DIR)
 
 # ─────────────────────────────────────────
 # FLASK APP
 # ─────────────────────────────────────────
 SITE_DIR = os.path.dirname(os.path.abspath(__file__))
+
+
 app = Flask(__name__, static_folder=SITE_DIR, static_url_path="")
 logging.basicConfig(level=logging.ERROR)
 
@@ -116,15 +113,14 @@ logging.basicConfig(level=logging.ERROR)
 def index():
     return send_file(os.path.join(SITE_DIR, "index.html"))
 
+
 @app.route("/debug")
 def debug():
-    import shutil
-    import os
-
-    return {
+    return jsonify({
         "ffmpeg": shutil.which("ffmpeg"),
-        "platform": os.name
-    }
+        "platform": os.name,
+    })
+
 
 @app.route("/<path:page>")
 def pages(page):
@@ -154,11 +150,9 @@ def api_validate():
 
 @app.route("/api/thumbnail")
 def api_thumbnail():
-    """Proxy YouTube thumbnail images to avoid mixed-content / CORS issues."""
     url = request.args.get("url", "").strip()
     if not url or not url.startswith("http"):
         return jsonify({"error": "Invalid URL"}), 400
-    # Try the requested URL, then fall back to hqdefault pattern
     import re as _re
     vid_match = _re.search(r'/vi(?:_webp)?/([a-zA-Z0-9_-]{11})/', url)
     fallback_url = f"https://i.ytimg.com/vi/{vid_match.group(1)}/hqdefault.jpg" if vid_match else None
@@ -180,21 +174,67 @@ def api_thumbnail():
     return jsonify({"error": "Thumbnail unavailable"}), 502
 
 
+# ─────────────────────────────────────────
+# YT-DLP BASE OPTIONS
+# ─────────────────────────────────────────
+def _base_ydl_opts() -> Dict[str, Any]:
+    opts: Dict[str, Any] = {
+        "quiet": True,
+        "no_warnings": True,
+        "socket_timeout": 20,
+        "extractor_args": {
+            "youtube": {
+                # tv_embedded skips webpage/JS entirely — hardest to bot-detect
+                "player_client": ["tv_embedded"],
+                "player_skip": ["webpage", "configs"],
+            }
+        },
+        "http_headers": {
+            "User-Agent": (
+                "Mozilla/5.0 (SMART-TV; Linux; Tizen 6.0) AppleWebKit/538.1 "
+                "(KHTML, like Gecko) Version/6.0 TV Safari/538.1"
+            ),
+            "Accept-Language": "en-US,en;q=0.9",
+        },
+        "retries": 5,
+        "fragment_retries": 5,
+    }
+    return opts
+
+
+# ─────────────────────────────────────────
+# API ROUTES
+# ─────────────────────────────────────────
 @app.route("/api/meta")
 def api_meta():
     url = clean_youtube_url(request.args.get("url", "").strip())
     if not url or not is_valid_youtube_url(url):
         return jsonify({"error": "Invalid URL"}), 400
     try:
-        opts: Dict[str, Any] = {
-            "quiet": True, "no_warnings": True, "skip_download": True,
-            "ignoreerrors": True, "noplaylist": False, "extract_flat": "in_playlist",
-            "socket_timeout": 15,
-        }
+        opts = _base_ydl_opts()
+        opts.update({
+            "skip_download": True,
+            "ignoreerrors": True,
+            "noplaylist": False,
+            "extract_flat": True,
+        })
         with YoutubeDL(opts) as ydl:  # type: ignore[arg-type]
             info = ydl.extract_info(url, download=False)
+
+        if info and "entries" not in info and not info.get("title"):
+            opts2 = _base_ydl_opts()
+            opts2.update({
+                "skip_download": True,
+                "ignoreerrors": True,
+                "noplaylist": True,
+                "extract_flat": "in_playlist",
+            })
+            with YoutubeDL(opts2) as ydl2:  # type: ignore[arg-type]
+                info = ydl2.extract_info(url, download=False) or info
+
         if not info:
             return jsonify({"error": "Could not fetch metadata"}), 400
+
         info_data: Dict[str, Any] = cast(Dict[str, Any], info)
         if "entries" in info_data:
             entries = [e for e in (info_data.get("entries") or []) if e]
@@ -279,12 +319,11 @@ def _make_opts(out_dir: str, noplaylist: bool = True) -> Dict[str, Any]:
                 state["progress"] = overall
                 state["status"] = f"[{state['current_index']}/{state['total_tracks']}] Converting..."
 
-    return {
-        "format": "bestaudio/best",
+    opts = _base_ydl_opts()
+    opts.update({
+        "format": "bestaudio[ext=m4a]/bestaudio[ext=webm]/bestaudio/best",
         "outtmpl": outtmpl,
         "noplaylist": noplaylist,
-        "quiet": True,
-        "no_warnings": True,
         "logger": YtdlpLogger(),
         "progress_hooks": [hook],
         "ffmpeg_location": FFMPEG_CMD,
@@ -294,10 +333,10 @@ def _make_opts(out_dir: str, noplaylist: bool = True) -> Dict[str, Any]:
             {"key": "EmbedThumbnail"},
         ],
         "keepvideo": False,
-        "retries": 3,
         "continuedl": True,
         "ignoreerrors": True,
-    }
+    })
+    return opts
 
 
 def cleanup_partials(out_dir: str, stop: bool = True):
@@ -316,10 +355,13 @@ def cleanup_partials(out_dir: str, stop: bool = True):
 def _download_worker(url: str, out_dir: str):
     state = download_state
     try:
-        opts_meta: Dict[str, Any] = {
-            "quiet": True, "no_warnings": True, "skip_download": True,
-            "ignoreerrors": True, "noplaylist": False, "extract_flat": "in_playlist",
-        }
+        opts_meta = _base_ydl_opts()
+        opts_meta.update({
+            "skip_download": True,
+            "ignoreerrors": True,
+            "noplaylist": False,
+            "extract_flat": "in_playlist",
+        })
         with download_lock:
             state["status"] = "Extracting metadata..."
         with YoutubeDL(opts_meta) as ydl:  # type: ignore[arg-type]
@@ -403,15 +445,12 @@ def api_download():
 
     data = request.get_json() or {}
     url = data.get("url", "").strip()
-
     url = clean_youtube_url(url)
     if not url or not is_valid_youtube_url(url):
         return jsonify({"error": "Invalid YouTube URL."}), 400
 
     if download_state["active"]:
         return jsonify({"error": "A download is already in progress."}), 409
-
-    out = output_dir
 
     with download_lock:
         download_state.update({
@@ -420,10 +459,10 @@ def api_download():
             "total_tracks": 1, "finished": False, "error": None, "last_file": None,
         })
 
-    t = threading.Thread(target=_download_worker, args=(url, out), daemon=True)
+    t = threading.Thread(target=_download_worker, args=(url, output_dir), daemon=True)
     t.start()
-
     return jsonify({"ok": True})
+
 
 @app.route("/api/download/file")
 def api_download_file():
@@ -435,12 +474,12 @@ def api_download_file():
             except Exception:
                 pass
         response = send_file(last_file, as_attachment=True)
-        # Clean up after sending
         @response.call_on_close
         def cleanup():
             remove_after_send(last_file)
         return response
     return jsonify({"error": "No file found"}), 404
+
 
 @app.route("/api/download/status")
 def api_download_status():
