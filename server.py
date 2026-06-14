@@ -282,7 +282,9 @@ def _make_opts(out_dir: str, noplaylist: bool = True) -> Dict[str, Any]:
                 state["status"] = f"[{state['current_index']}/{state['total_tracks']}] Converting..."
 
     return {
-        "format": "bestaudio/best",
+        "format": "bestaudio[ext=m4a]/bestaudio[ext=webm]/bestaudio/best",
+        "extractor_args": {"youtube": {"player_client": ["android", "web"]}},
+        "http_headers": {"User-Agent": "Mozilla/5.0 (Linux; Android 11; Pixel 5) AppleWebKit/537.36"},
         "outtmpl": outtmpl,
         "noplaylist": noplaylist,
         "quiet": True,
