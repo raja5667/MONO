@@ -386,19 +386,10 @@ def _download_worker(url: str, out_dir: str):
                     ydl.download([track_url])
 
             if not state["stop"]:
-                # Zip the playlist folder
+                # Clean up leftover thumbnail/temp files from the playlist folder
+                cleanup_partials(playlist_dir, stop=True)
                 with download_lock:
-                    state["status"] = f"Zipping playlist folder..."
-                zip_path = os.path.join(out_dir, safe_name + ".zip")
-                with zipfile.ZipFile(zip_path, "w", zipfile.ZIP_DEFLATED) as zf:
-                    for fname in os.listdir(playlist_dir):
-                        fpath = os.path.join(playlist_dir, fname)
-                        if os.path.isfile(fpath):
-                            zf.write(fpath, arcname=os.path.join(safe_name, fname))
-                # Clean up the folder after zipping
-                shutil.rmtree(playlist_dir, ignore_errors=True)
-                with download_lock:
-                    state["last_zip"] = zip_path
+                    state["last_file"] = playlist_dir
         else:
             with download_lock:
                 state["total_tracks"] = 1
@@ -467,24 +458,35 @@ def api_download():
 
 @app.route("/api/download/file")
 def api_download_file():
-    # Playlist: serve the zip
-    last_zip = download_state.get("last_zip")
-    if last_zip and os.path.exists(last_zip):
-        zip_name = os.path.basename(last_zip)
-        def remove_zip(path):
-            try:
-                os.remove(path)
-            except Exception:
-                pass
-        response = send_file(last_zip, as_attachment=True, download_name=zip_name, mimetype="application/zip")
-        @response.call_on_close
-        def cleanup_zip():
-            remove_zip(last_zip)
-        return response
+    last_file = download_state.get("last_file")
+
+    # Playlist folder: stream a zip built on-the-fly from the actual finished files
+    if last_file and os.path.isdir(last_file):
+        folder = last_file
+        folder_name = os.path.basename(folder)
+        mp3_files = sorted(
+            f for f in os.listdir(folder) if f.lower().endswith(".mp3")
+        )
+
+        def generate_zip():
+            buf = io.BytesIO()
+            with zipfile.ZipFile(buf, "w", zipfile.ZIP_DEFLATED) as zf:
+                for fname in mp3_files:
+                    fpath = os.path.join(folder, fname)
+                    if os.path.isfile(fpath):
+                        zf.write(fpath, arcname=os.path.join(folder_name, fname))
+            buf.seek(0)
+            yield buf.read()
+
+        zip_filename = folder_name + ".zip"
+        return Response(
+            generate_zip(),
+            mimetype="application/zip",
+            headers={"Content-Disposition": f'attachment; filename="{zip_filename}"'},
+        )
 
     # Single track: serve the mp3
-    last_file = download_state.get("last_file")
-    if last_file and os.path.exists(last_file):
+    if last_file and os.path.isfile(last_file):
         def remove_after_send(path):
             try:
                 os.remove(path)
@@ -495,6 +497,7 @@ def api_download_file():
         def cleanup():
             remove_after_send(last_file)
         return response
+
     return jsonify({"error": "No file found"}), 404
 
 @app.route("/api/download/status")
