@@ -106,11 +106,9 @@ SITE_DIR = os.path.dirname(os.path.abspath(__file__))
 COOKIES_FILE = os.path.join(SITE_DIR, "cookies.txt")
 COOKIES_FILE = COOKIES_FILE if os.path.exists(COOKIES_FILE) else None
 
-# ── Proxy config ─────────────────────────
-# Get your free proxy from webshare.io
-# Format: "http://username:password@ip:port"
-PROXY = "http://ifdyftex:wxavw3clzlau@38.154.203.95:5863" 
-# ─────────────────────────────────────────
+# ── Proxy disabled (using tv_embedded client instead) ──
+PROXY = None
+# ────────────────────────────────────────
 
 app = Flask(__name__, static_folder=SITE_DIR, static_url_path="")
 logging.basicConfig(level=logging.ERROR)
@@ -196,10 +194,11 @@ def _base_ydl_opts() -> Dict[str, Any]:
         "no_warnings": True,
         "socket_timeout": 20,
         "cookiefile": cookies,
-        "proxy": PROXY,
         "extractor_args": {
             "youtube": {
-                "player_client": ["tv_embedded", "ios", "web"],
+                # tv_embedded skips webpage/JS entirely — hardest to bot-detect
+                "player_client": ["tv_embedded"],
+                "player_skip": ["webpage", "configs"],
             }
         },
         "http_headers": {
