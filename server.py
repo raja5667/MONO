@@ -9,10 +9,8 @@ import re
 import shutil
 import socket
 import tempfile
-import subprocess
 import threading
 import logging
-import io
 from typing import Any, Dict, cast
 from pathlib import Path
 from flask import Flask, request, jsonify, send_file, Response
@@ -37,13 +35,11 @@ YOUTU_BE_REGEX = re.compile(
 
 
 def clean_youtube_url(url: str) -> str:
-    """Remove tracking params (si=, utm_*, etc.) that confuse yt-dlp."""
     import urllib.parse
     url = url.strip()
     try:
         p = urllib.parse.urlparse(url)
         qs = urllib.parse.parse_qs(p.query, keep_blank_values=True)
-        # Keep only essential params
         allowed = {'v', 'list', 'index', 't', 'start'}
         qs_clean = {k: v for k, v in qs.items() if k in allowed}
         clean_query = urllib.parse.urlencode(qs_clean, doseq=True)
@@ -101,14 +97,21 @@ download_state: Dict[str, Any] = {
     "last_file": None,
 }
 download_lock = threading.Lock()
-
 output_dir = str(DEFAULT_OUTPUT_DIR)
 
 # ─────────────────────────────────────────
 # FLASK APP
 # ─────────────────────────────────────────
 SITE_DIR = os.path.dirname(os.path.abspath(__file__))
-COOKIES_FILE = os.path.join(SITE_DIR, "cookies.txt") if os.path.exists(os.path.join(SITE_DIR, "cookies.txt")) else None
+COOKIES_FILE = os.path.join(SITE_DIR, "cookies.txt")
+COOKIES_FILE = COOKIES_FILE if os.path.exists(COOKIES_FILE) else None
+
+# ── Proxy config ─────────────────────────
+# Get your free proxy from webshare.io
+# Format: "http://username:password@ip:port"
+PROXY = "http://ifdyftex:wxavw3clzlau@38.154.203.95:5863" 
+# ─────────────────────────────────────────
+
 app = Flask(__name__, static_folder=SITE_DIR, static_url_path="")
 logging.basicConfig(level=logging.ERROR)
 
@@ -117,15 +120,17 @@ logging.basicConfig(level=logging.ERROR)
 def index():
     return send_file(os.path.join(SITE_DIR, "index.html"))
 
+
 @app.route("/debug")
 def debug():
-    import shutil
-    import os
-
-    return {
+    return jsonify({
         "ffmpeg": shutil.which("ffmpeg"),
-        "platform": os.name
-    }
+        "platform": os.name,
+        "cookies_file": COOKIES_FILE,
+        "cookies_exists": os.path.exists(COOKIES_FILE) if COOKIES_FILE else False,
+        "proxy": PROXY,
+    })
+
 
 @app.route("/<path:page>")
 def pages(page):
@@ -155,11 +160,9 @@ def api_validate():
 
 @app.route("/api/thumbnail")
 def api_thumbnail():
-    """Proxy YouTube thumbnail images to avoid mixed-content / CORS issues."""
     url = request.args.get("url", "").strip()
     if not url or not url.startswith("http"):
         return jsonify({"error": "Invalid URL"}), 400
-    # Try the requested URL, then fall back to hqdefault pattern
     import re as _re
     vid_match = _re.search(r'/vi(?:_webp)?/([a-zA-Z0-9_-]{11})/', url)
     fallback_url = f"https://i.ytimg.com/vi/{vid_match.group(1)}/hqdefault.jpg" if vid_match else None
@@ -181,21 +184,21 @@ def api_thumbnail():
     return jsonify({"error": "Thumbnail unavailable"}), 502
 
 
+# ─────────────────────────────────────────
+# YT-DLP BASE OPTIONS
+# ─────────────────────────────────────────
 def _base_ydl_opts() -> Dict[str, Any]:
-    """Shared yt-dlp options that help bypass bot detection on cloud IPs."""
-    # Always resolve cookies path at call time so it reflects the actual file
     cookies = os.path.join(SITE_DIR, "cookies.txt")
     cookies = cookies if os.path.exists(cookies) else None
-    print(f"[yt-dlp] Using cookiefile: {cookies} (exists={cookies is not None})", flush=True)
 
     opts: Dict[str, Any] = {
-        "quiet": False,        # show warnings so we can debug
-        "no_warnings": False,
+        "quiet": True,
+        "no_warnings": True,
         "socket_timeout": 20,
         "cookiefile": cookies,
+        "proxy": PROXY,
         "extractor_args": {
             "youtube": {
-                # tv_embedded avoids bot checks better than ios on datacenter IPs
                 "player_client": ["tv_embedded", "ios", "web"],
             }
         },
@@ -212,27 +215,25 @@ def _base_ydl_opts() -> Dict[str, Any]:
     return opts
 
 
+# ─────────────────────────────────────────
+# API ROUTES
+# ─────────────────────────────────────────
 @app.route("/api/meta")
 def api_meta():
     url = clean_youtube_url(request.args.get("url", "").strip())
     if not url or not is_valid_youtube_url(url):
         return jsonify({"error": "Invalid URL"}), 400
     try:
-        # For metadata we use extract_flat=True so yt-dlp fetches basic info
-        # (title, thumbnail, duration) without ever resolving formats.
-        # This avoids "Requested format not available" errors entirely.
         opts = _base_ydl_opts()
         opts.update({
             "skip_download": True,
             "ignoreerrors": True,
             "noplaylist": False,
-            "extract_flat": True,   # skip format resolution completely
+            "extract_flat": True,
         })
         with YoutubeDL(opts) as ydl:  # type: ignore[arg-type]
             info = ydl.extract_info(url, download=False)
 
-        # extract_flat=True may not give duration/view_count for single videos;
-        # try a second pass with extract_flat="in_playlist" if result looks empty
         if info and "entries" not in info and not info.get("title"):
             opts2 = _base_ydl_opts()
             opts2.update({
@@ -246,6 +247,7 @@ def api_meta():
 
         if not info:
             return jsonify({"error": "Could not fetch metadata"}), 400
+
         info_data: Dict[str, Any] = cast(Dict[str, Any], info)
         if "entries" in info_data:
             entries = [e for e in (info_data.get("entries") or []) if e]
@@ -456,15 +458,12 @@ def api_download():
 
     data = request.get_json() or {}
     url = data.get("url", "").strip()
-
     url = clean_youtube_url(url)
     if not url or not is_valid_youtube_url(url):
         return jsonify({"error": "Invalid YouTube URL."}), 400
 
     if download_state["active"]:
         return jsonify({"error": "A download is already in progress."}), 409
-
-    out = output_dir
 
     with download_lock:
         download_state.update({
@@ -473,10 +472,10 @@ def api_download():
             "total_tracks": 1, "finished": False, "error": None, "last_file": None,
         })
 
-    t = threading.Thread(target=_download_worker, args=(url, out), daemon=True)
+    t = threading.Thread(target=_download_worker, args=(url, output_dir), daemon=True)
     t.start()
-
     return jsonify({"ok": True})
+
 
 @app.route("/api/download/file")
 def api_download_file():
@@ -488,12 +487,12 @@ def api_download_file():
             except Exception:
                 pass
         response = send_file(last_file, as_attachment=True)
-        # Clean up after sending
         @response.call_on_close
         def cleanup():
             remove_after_send(last_file)
         return response
     return jsonify({"error": "No file found"}), 404
+
 
 @app.route("/api/download/status")
 def api_download_status():
