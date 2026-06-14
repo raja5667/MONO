@@ -613,10 +613,106 @@
 
         /* ── Responsive ── */
         @media (max-width: 600px) {
-            .tryout-hero h1 { font-size: 2.2rem; }
-            .input-card { padding: 1.4rem; }
-            .btn-row { flex-direction: column; align-items: stretch; }
-            .btn-primary, .btn-secondary { justify-content: center; }
-            .video-preview { flex-direction: column; text-align: center; }
-            .thumb-wrap { width: 100%; height: 150px; }
+            /* Layout */
+            .tryout-main {
+                padding: 2rem 1rem 4rem;
+            }
+
+            /* Hero */
+            .tryout-hero {
+                padding: 1.5rem 0 2rem;
+            }
+            .tryout-hero h1 {
+                font-size: 2rem;
+            }
+            .tryout-hero p {
+                font-size: 0.9rem;
+            }
+
+            /* Input card */
+            .input-card {
+                padding: 1.2rem;
+                border-radius: 18px;
+            }
+
+            /* URL row — prevent overflow */
+            .url-row {
+                padding: 0 10px;
+                gap: 6px;
+                min-width: 0;
+            }
+            #url-input {
+                font-size: 13px;
+                min-width: 0;
+                width: 0; /* flex will grow it */
+            }
+            .url-badge {
+                font-size: 9px;
+                padding: 3px 7px;
+                max-width: 70px;
+                overflow: hidden;
+                text-overflow: ellipsis;
+            }
+
+            /* Video preview — stack vertically */
+            .video-preview {
+                flex-direction: column;
+                gap: 10px;
+            }
+            .thumb-wrap {
+                width: 100%;
+                height: 160px;
+                flex-shrink: 0;
+            }
+            .video-meta {
+                text-align: left;
+                width: 100%;
+            }
+            .video-title {
+                white-space: normal;
+                font-size: 13px;
+            }
+            .video-channel {
+                flex-wrap: wrap;
+                font-size: 11px;
+            }
+
+            /* Buttons */
+            .btn-row {
+                flex-direction: column;
+                align-items: stretch;
+                gap: 10px;
+                margin-top: 1.4rem;
+            }
+            .btn-primary,
+            .btn-secondary {
+                justify-content: center;
+                width: 100%;
+                box-sizing: border-box;
+            }
+
+            /* Progress card */
+            .progress-card {
+                padding: 1.2rem;
+                border-radius: 18px;
+            }
+
+            /* Toast — prevent overflow */
+            #toast {
+                white-space: normal;
+                text-align: center;
+                max-width: calc(100vw - 2rem);
+                left: 1rem;
+                right: 1rem;
+                transform: translateY(16px);
+                border-radius: 14px;
+            }
+            #toast.show {
+                transform: translateY(0);
+            }
+
+            /* Features grid — single column */
+            .features-grid {
+                grid-template-columns: 1fr;
+            }
         }
