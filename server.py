@@ -103,12 +103,7 @@ output_dir = str(DEFAULT_OUTPUT_DIR)
 # FLASK APP
 # ─────────────────────────────────────────
 SITE_DIR = os.path.dirname(os.path.abspath(__file__))
-COOKIES_FILE = os.path.join(SITE_DIR, "cookies.txt")
-COOKIES_FILE = COOKIES_FILE if os.path.exists(COOKIES_FILE) else None
 
-# ── Proxy disabled (using tv_embedded client instead) ──
-PROXY = None
-# ────────────────────────────────────────
 
 app = Flask(__name__, static_folder=SITE_DIR, static_url_path="")
 logging.basicConfig(level=logging.ERROR)
@@ -186,14 +181,10 @@ def api_thumbnail():
 # YT-DLP BASE OPTIONS
 # ─────────────────────────────────────────
 def _base_ydl_opts() -> Dict[str, Any]:
-    cookies = os.path.join(SITE_DIR, "cookies.txt")
-    cookies = cookies if os.path.exists(cookies) else None
-
     opts: Dict[str, Any] = {
         "quiet": True,
         "no_warnings": True,
         "socket_timeout": 20,
-        "cookiefile": cookies,
         "extractor_args": {
             "youtube": {
                 # tv_embedded skips webpage/JS entirely — hardest to bot-detect
