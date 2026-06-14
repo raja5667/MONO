@@ -115,6 +115,15 @@ logging.basicConfig(level=logging.ERROR)
 def index():
     return send_file(os.path.join(SITE_DIR, "index.html"))
 
+@app.route("/debug")
+def debug():
+    import shutil
+    import os
+
+    return {
+        "ffmpeg": shutil.which("ffmpeg"),
+        "platform": os.name
+    }
 
 @app.route("/<path:page>")
 def pages(page):
