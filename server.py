@@ -14,7 +14,7 @@ import threading
 import logging
 import io
 import zipfile
-from typing import Any, Dict, cast
+from typing import Any, Dict, Optional, cast
 from pathlib import Path
 from flask import Flask, request, jsonify, send_file, Response
 import urllib.request
@@ -248,7 +248,7 @@ def api_set_output_dir():
 # ─────────────────────────────────────────
 # DOWNLOAD WORKER
 # ─────────────────────────────────────────
-def _make_opts(out_dir: str, noplaylist: bool = True, outtmpl: str = None) -> Dict[str, Any]:
+def _make_opts(out_dir: str, noplaylist: bool = True, outtmpl: Optional[str] = None) -> Dict[str, Any]:
     if outtmpl is None:
         outtmpl = os.path.join(out_dir, "%(title)s.%(ext)s")
     state = download_state
@@ -364,7 +364,7 @@ def _download_worker(url: str, out_dir: str):
             with download_lock:
                 state["total_tracks"] = len(entries)
                 state["is_playlist"] = True
-                state["status"] = f"Found playlist "{safe_name}" with {len(entries)} tracks. Starting..."
+                state["status"] = f'Found playlist "{safe_name}" with {len(entries)} tracks. Starting...'
 
             for idx, entry in enumerate(entries, 1):
                 if state["stop"]:
