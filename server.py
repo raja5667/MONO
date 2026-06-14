@@ -127,15 +127,6 @@ def debug():
         "platform": os.name
     }
 
-@app.route("/debug/cookies")
-def debug_cookies():
-    return jsonify({
-        "cookies_file": COOKIES_FILE,
-        "exists": os.path.exists(COOKIES_FILE) if COOKIES_FILE else False,
-        "site_dir": SITE_DIR,
-        "files_in_dir": os.listdir(SITE_DIR)
-    })
-
 @app.route("/<path:page>")
 def pages(page):
     filepath = os.path.join(SITE_DIR, page)
@@ -192,21 +183,26 @@ def api_thumbnail():
 
 def _base_ydl_opts() -> Dict[str, Any]:
     """Shared yt-dlp options that help bypass bot detection on cloud IPs."""
+    # Always resolve cookies path at call time so it reflects the actual file
+    cookies = os.path.join(SITE_DIR, "cookies.txt")
+    cookies = cookies if os.path.exists(cookies) else None
+    print(f"[yt-dlp] Using cookiefile: {cookies} (exists={cookies is not None})", flush=True)
+
     opts: Dict[str, Any] = {
-        "quiet": True,
-        "no_warnings": True,
+        "quiet": False,        # show warnings so we can debug
+        "no_warnings": False,
         "socket_timeout": 20,
-        "cookiefile": COOKIES_FILE,
+        "cookiefile": cookies,
         "extractor_args": {
             "youtube": {
-                # ios first (least blocked), fall back to android then web
-                "player_client": ["ios", "android", "web"],
+                # tv_embedded avoids bot checks better than ios on datacenter IPs
+                "player_client": ["tv_embedded", "ios", "web"],
             }
         },
         "http_headers": {
             "User-Agent": (
-                "Mozilla/5.0 (iPhone; CPU iPhone OS 17_0 like Mac OS X) "
-                "AppleWebKit/605.1.15 (KHTML, like Gecko) Version/17.0 Mobile/15E148 Safari/604.1"
+                "Mozilla/5.0 (SMART-TV; Linux; Tizen 6.0) AppleWebKit/538.1 "
+                "(KHTML, like Gecko) Version/6.0 TV Safari/538.1"
             ),
             "Accept-Language": "en-US,en;q=0.9",
         },
