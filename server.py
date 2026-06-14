@@ -190,8 +190,8 @@ def _base_ydl_opts() -> Dict[str, Any]:
         "cookiefile": COOKIES_FILE,
         "extractor_args": {
             "youtube": {
+                # ios first (least blocked), fall back to android then web
                 "player_client": ["ios", "android", "web"],
-                "skip": ["hls", "dash"],
             }
         },
         "http_headers": {
@@ -216,7 +216,7 @@ def api_meta():
         opts = _base_ydl_opts()
         opts.update({
             "skip_download": True,
-            "ignoreerrors": False,   # raise so we can return a real error message
+            "ignoreerrors": True,
             "noplaylist": False,
             "extract_flat": "in_playlist",
         })
