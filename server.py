@@ -13,6 +13,7 @@ import subprocess
 import threading
 import logging
 import io
+import zipfile
 from typing import Any, Dict, cast
 from pathlib import Path
 from flask import Flask, request, jsonify, send_file, Response
@@ -99,6 +100,8 @@ download_state: Dict[str, Any] = {
     "finished": False,
     "error": None,
     "last_file": None,
+    "last_zip": None,
+    "is_playlist": False,
 }
 download_lock = threading.Lock()
 
@@ -245,8 +248,9 @@ def api_set_output_dir():
 # ─────────────────────────────────────────
 # DOWNLOAD WORKER
 # ─────────────────────────────────────────
-def _make_opts(out_dir: str, noplaylist: bool = True) -> Dict[str, Any]:
-    outtmpl = os.path.join(out_dir, "%(title)s.%(ext)s")
+def _make_opts(out_dir: str, noplaylist: bool = True, outtmpl: str = None) -> Dict[str, Any]:
+    if outtmpl is None:
+        outtmpl = os.path.join(out_dir, "%(title)s.%(ext)s")
     state = download_state
 
     class YtdlpLogger:
@@ -350,9 +354,17 @@ def _download_worker(url: str, out_dir: str):
         if "entries" in info_data:
             raw_entries = info_data.get("entries") or []
             entries = [e for e in raw_entries if e is not None]
+
+            # Create a subfolder named after the playlist
+            playlist_title = info_data.get("title") or "Playlist"
+            safe_name = re.sub(r'[\\/:*?"<>|]', "_", playlist_title).strip(". ")[:80] or "Playlist"
+            playlist_dir = os.path.join(out_dir, safe_name)
+            os.makedirs(playlist_dir, exist_ok=True)
+
             with download_lock:
                 state["total_tracks"] = len(entries)
-                state["status"] = f"Found playlist with {len(entries)} tracks. Starting..."
+                state["is_playlist"] = True
+                state["status"] = f"Found playlist "{safe_name}" with {len(entries)} tracks. Starting..."
 
             for idx, entry in enumerate(entries, 1):
                 if state["stop"]:
@@ -369,8 +381,24 @@ def _download_worker(url: str, out_dir: str):
                 with download_lock:
                     state["status"] = f"[{idx}/{state['total_tracks']}] Processing: {title[:30]}..."
                     state["last_file"] = None
-                with YoutubeDL(_make_opts(out_dir, noplaylist=False)) as ydl:  # type: ignore[arg-type]
+                track_outtmpl = os.path.join(playlist_dir, "%(title)s.%(ext)s")
+                with YoutubeDL(_make_opts(playlist_dir, noplaylist=True, outtmpl=track_outtmpl)) as ydl:  # type: ignore[arg-type]
                     ydl.download([track_url])
+
+            if not state["stop"]:
+                # Zip the playlist folder
+                with download_lock:
+                    state["status"] = f"Zipping playlist folder..."
+                zip_path = os.path.join(out_dir, safe_name + ".zip")
+                with zipfile.ZipFile(zip_path, "w", zipfile.ZIP_DEFLATED) as zf:
+                    for fname in os.listdir(playlist_dir):
+                        fpath = os.path.join(playlist_dir, fname)
+                        if os.path.isfile(fpath):
+                            zf.write(fpath, arcname=os.path.join(safe_name, fname))
+                # Clean up the folder after zipping
+                shutil.rmtree(playlist_dir, ignore_errors=True)
+                with download_lock:
+                    state["last_zip"] = zip_path
         else:
             with download_lock:
                 state["total_tracks"] = 1
@@ -428,7 +456,8 @@ def api_download():
         download_state.update({
             "active": True, "stop": False, "progress": 0.0,
             "status": "Queued", "skipped": 0, "current_index": 1,
-            "total_tracks": 1, "finished": False, "error": None, "last_file": None,
+            "total_tracks": 1, "finished": False, "error": None,
+            "last_file": None, "last_zip": None, "is_playlist": False,
         })
 
     t = threading.Thread(target=_download_worker, args=(url, out), daemon=True)
@@ -438,6 +467,22 @@ def api_download():
 
 @app.route("/api/download/file")
 def api_download_file():
+    # Playlist: serve the zip
+    last_zip = download_state.get("last_zip")
+    if last_zip and os.path.exists(last_zip):
+        zip_name = os.path.basename(last_zip)
+        def remove_zip(path):
+            try:
+                os.remove(path)
+            except Exception:
+                pass
+        response = send_file(last_zip, as_attachment=True, download_name=zip_name, mimetype="application/zip")
+        @response.call_on_close
+        def cleanup_zip():
+            remove_zip(last_zip)
+        return response
+
+    # Single track: serve the mp3
     last_file = download_state.get("last_file")
     if last_file and os.path.exists(last_file):
         def remove_after_send(path):
@@ -446,7 +491,6 @@ def api_download_file():
             except Exception:
                 pass
         response = send_file(last_file, as_attachment=True)
-        # Clean up after sending
         @response.call_on_close
         def cleanup():
             remove_after_send(last_file)
