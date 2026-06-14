@@ -8,6 +8,7 @@ import os
 import re
 import shutil
 import socket
+import tempfile
 import subprocess
 import threading
 import logging
@@ -22,7 +23,7 @@ from yt_dlp import YoutubeDL
 # ─────────────────────────────────────────
 # CONFIG
 # ─────────────────────────────────────────
-DEFAULT_OUTPUT_DIR = Path.home() / "Downloads"
+DEFAULT_OUTPUT_DIR = Path(tempfile.gettempdir()) / "ytmp3_downloads"
 DEFAULT_OUTPUT_DIR.mkdir(parents=True, exist_ok=True)
 
 YOUTUBE_REGEX = re.compile(
@@ -428,7 +429,17 @@ def api_download():
 def api_download_file():
     last_file = download_state.get("last_file")
     if last_file and os.path.exists(last_file):
-        return send_file(last_file, as_attachment=True)
+        def remove_after_send(path):
+            try:
+                os.remove(path)
+            except Exception:
+                pass
+        response = send_file(last_file, as_attachment=True)
+        # Clean up after sending
+        @response.call_on_close
+        def cleanup():
+            remove_after_send(last_file)
+        return response
     return jsonify({"error": "No file found"}), 404
 
 @app.route("/api/download/status")
