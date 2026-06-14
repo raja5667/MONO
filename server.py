@@ -108,6 +108,7 @@ output_dir = str(DEFAULT_OUTPUT_DIR)
 # FLASK APP
 # ─────────────────────────────────────────
 SITE_DIR = os.path.dirname(os.path.abspath(__file__))
+COOKIES_FILE = os.path.join(SITE_DIR, "cookies.txt") if os.path.exists(os.path.join(SITE_DIR, "cookies.txt")) else None
 app = Flask(__name__, static_folder=SITE_DIR, static_url_path="")
 logging.basicConfig(level=logging.ERROR)
 
@@ -190,6 +191,7 @@ def api_meta():
             "quiet": True, "no_warnings": True, "skip_download": True,
             "ignoreerrors": True, "noplaylist": False, "extract_flat": "in_playlist",
             "socket_timeout": 15,
+            "cookiefile": COOKIES_FILE,
         }
         with YoutubeDL(opts) as ydl:  # type: ignore[arg-type]
             info = ydl.extract_info(url, download=False)
@@ -297,6 +299,7 @@ def _make_opts(out_dir: str, noplaylist: bool = True) -> Dict[str, Any]:
         "retries": 3,
         "continuedl": True,
         "ignoreerrors": True,
+        "cookiefile": COOKIES_FILE,
     }
 
 
@@ -319,6 +322,7 @@ def _download_worker(url: str, out_dir: str):
         opts_meta: Dict[str, Any] = {
             "quiet": True, "no_warnings": True, "skip_download": True,
             "ignoreerrors": True, "noplaylist": False, "extract_flat": "in_playlist",
+            "cookiefile": COOKIES_FILE,
         }
         with download_lock:
             state["status"] = "Extracting metadata..."
