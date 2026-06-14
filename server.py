@@ -213,15 +213,32 @@ def api_meta():
     if not url or not is_valid_youtube_url(url):
         return jsonify({"error": "Invalid URL"}), 400
     try:
+        # For metadata we use extract_flat=True so yt-dlp fetches basic info
+        # (title, thumbnail, duration) without ever resolving formats.
+        # This avoids "Requested format not available" errors entirely.
         opts = _base_ydl_opts()
         opts.update({
             "skip_download": True,
             "ignoreerrors": True,
             "noplaylist": False,
-            "extract_flat": "in_playlist",
+            "extract_flat": True,   # skip format resolution completely
         })
         with YoutubeDL(opts) as ydl:  # type: ignore[arg-type]
             info = ydl.extract_info(url, download=False)
+
+        # extract_flat=True may not give duration/view_count for single videos;
+        # try a second pass with extract_flat="in_playlist" if result looks empty
+        if info and "entries" not in info and not info.get("title"):
+            opts2 = _base_ydl_opts()
+            opts2.update({
+                "skip_download": True,
+                "ignoreerrors": True,
+                "noplaylist": True,
+                "extract_flat": "in_playlist",
+            })
+            with YoutubeDL(opts2) as ydl2:  # type: ignore[arg-type]
+                info = ydl2.extract_info(url, download=False) or info
+
         if not info:
             return jsonify({"error": "Could not fetch metadata"}), 400
         info_data: Dict[str, Any] = cast(Dict[str, Any], info)
