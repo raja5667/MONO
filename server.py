@@ -427,8 +427,12 @@ def api_download():
 @app.route("/api/download/file")
 def api_download_file():
     last_file = download_state.get("last_file")
+    print(f"DEBUG: Attempting to download file at path: {last_file}") # CHECK LOGS FOR THIS
+    
     if last_file and os.path.exists(last_file):
         return send_file(last_file, as_attachment=True)
+    
+    print(f"DEBUG: File not found or path is empty: {last_file}")
     return jsonify({"error": "No file found"}), 404
 
 @app.route("/api/download/status")
