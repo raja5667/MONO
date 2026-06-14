@@ -181,18 +181,45 @@ def api_thumbnail():
     return jsonify({"error": "Thumbnail unavailable"}), 502
 
 
+def _base_ydl_opts() -> Dict[str, Any]:
+    """Shared yt-dlp options that help bypass bot detection on cloud IPs."""
+    opts: Dict[str, Any] = {
+        "quiet": True,
+        "no_warnings": True,
+        "socket_timeout": 20,
+        "cookiefile": COOKIES_FILE,
+        "extractor_args": {
+            "youtube": {
+                "player_client": ["ios", "android", "web"],
+                "skip": ["hls", "dash"],
+            }
+        },
+        "http_headers": {
+            "User-Agent": (
+                "Mozilla/5.0 (iPhone; CPU iPhone OS 17_0 like Mac OS X) "
+                "AppleWebKit/605.1.15 (KHTML, like Gecko) Version/17.0 Mobile/15E148 Safari/604.1"
+            ),
+            "Accept-Language": "en-US,en;q=0.9",
+        },
+        "retries": 5,
+        "fragment_retries": 5,
+    }
+    return opts
+
+
 @app.route("/api/meta")
 def api_meta():
     url = clean_youtube_url(request.args.get("url", "").strip())
     if not url or not is_valid_youtube_url(url):
         return jsonify({"error": "Invalid URL"}), 400
     try:
-        opts: Dict[str, Any] = {
-            "quiet": True, "no_warnings": True, "skip_download": True,
-            "ignoreerrors": True, "noplaylist": False, "extract_flat": "in_playlist",
-            "socket_timeout": 15,
-            "cookiefile": COOKIES_FILE,
-        }
+        opts = _base_ydl_opts()
+        opts.update({
+            "skip_download": True,
+            "ignoreerrors": False,   # raise so we can return a real error message
+            "noplaylist": False,
+            "extract_flat": "in_playlist",
+        })
         with YoutubeDL(opts) as ydl:  # type: ignore[arg-type]
             info = ydl.extract_info(url, download=False)
         if not info:
@@ -281,14 +308,11 @@ def _make_opts(out_dir: str, noplaylist: bool = True) -> Dict[str, Any]:
                 state["progress"] = overall
                 state["status"] = f"[{state['current_index']}/{state['total_tracks']}] Converting..."
 
-    return {
+    opts = _base_ydl_opts()
+    opts.update({
         "format": "bestaudio[ext=m4a]/bestaudio[ext=webm]/bestaudio/best",
-        "extractor_args": {"youtube": {"player_client": ["android", "web"]}},
-        "http_headers": {"User-Agent": "Mozilla/5.0 (Linux; Android 11; Pixel 5) AppleWebKit/537.36"},
         "outtmpl": outtmpl,
         "noplaylist": noplaylist,
-        "quiet": True,
-        "no_warnings": True,
         "logger": YtdlpLogger(),
         "progress_hooks": [hook],
         "ffmpeg_location": FFMPEG_CMD,
@@ -298,11 +322,10 @@ def _make_opts(out_dir: str, noplaylist: bool = True) -> Dict[str, Any]:
             {"key": "EmbedThumbnail"},
         ],
         "keepvideo": False,
-        "retries": 3,
         "continuedl": True,
         "ignoreerrors": True,
-        "cookiefile": COOKIES_FILE,
-    }
+    })
+    return opts
 
 
 def cleanup_partials(out_dir: str, stop: bool = True):
@@ -321,11 +344,13 @@ def cleanup_partials(out_dir: str, stop: bool = True):
 def _download_worker(url: str, out_dir: str):
     state = download_state
     try:
-        opts_meta: Dict[str, Any] = {
-            "quiet": True, "no_warnings": True, "skip_download": True,
-            "ignoreerrors": True, "noplaylist": False, "extract_flat": "in_playlist",
-            "cookiefile": COOKIES_FILE,
-        }
+        opts_meta = _base_ydl_opts()
+        opts_meta.update({
+            "skip_download": True,
+            "ignoreerrors": True,
+            "noplaylist": False,
+            "extract_flat": "in_playlist",
+        })
         with download_lock:
             state["status"] = "Extracting metadata..."
         with YoutubeDL(opts_meta) as ydl:  # type: ignore[arg-type]
