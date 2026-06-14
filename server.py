@@ -459,61 +459,48 @@ def api_download():
 @app.route("/api/download/file")
 def api_download_file():
     last_file = download_state.get("last_file")
+    
+    if not last_file or not os.path.exists(last_file):
+        return jsonify({"error": "No file or playlist found to download."}), 404
 
-    # Playlist folder: build a real zip file on disk, then send it
-    if last_file and os.path.isdir(last_file):
+    # 1. HANDLE PLAYLISTS (Directory)
+    if os.path.isdir(last_file):
         folder = last_file
         folder_name = os.path.basename(folder)
-        mp3_files = sorted(
-            f for f in os.listdir(folder) if f.lower().endswith(".mp3")
-        )
+        # Gather all MP3s
+        mp3_files = sorted([f for f in os.listdir(folder) if f.lower().endswith(".mp3")])
+        
+        if not mp3_files:
+            return jsonify({"error": "Playlist folder is empty."}), 404
 
-        # Write zip to a temp file so send_file can give it a proper Content-Length
-        tmp_zip = tempfile.NamedTemporaryFile(
-            suffix=".zip", delete=False, dir=tempfile.gettempdir()
-        )
-        tmp_zip.close()
+        # Create the ZIP
+        tmp_zip = tempfile.NamedTemporaryFile(suffix=".zip", delete=False)
         zip_path = tmp_zip.name
+        tmp_zip.close() 
 
         with zipfile.ZipFile(zip_path, "w", zipfile.ZIP_DEFLATED) as zf:
             for fname in mp3_files:
                 fpath = os.path.join(folder, fname)
-                if os.path.isfile(fpath):
-                    zf.write(fpath, arcname=os.path.join(folder_name, fname))
-
-        zip_filename = folder_name + ".zip"
-
-        def remove_tmp_zip(path):
-            try:
-                os.remove(path)
-            except Exception:
-                pass
-
+                zf.write(fpath, arcname=os.path.join(folder_name, fname))
+        
         response = send_file(
             zip_path,
             as_attachment=True,
-            download_name=zip_filename,
+            download_name=f"{folder_name}.zip",
             mimetype="application/zip",
         )
         @response.call_on_close
         def cleanup_zip():
-            remove_tmp_zip(zip_path)
+            if os.path.exists(zip_path):
+                os.remove(zip_path)
         return response
 
-    # Single track: serve the mp3
-    if last_file and os.path.isfile(last_file):
-        def remove_after_send(path):
-            try:
-                os.remove(path)
-            except Exception:
-                pass
-        response = send_file(last_file, as_attachment=True)
-        @response.call_on_close
-        def cleanup():
-            remove_after_send(last_file)
-        return response
+    # 2. HANDLE SINGLE TRACKS (File)
+    elif os.path.isfile(last_file):
+        # Serve the raw MP3 directly
+        return send_file(last_file, as_attachment=True)
 
-    return jsonify({"error": "No file found"}), 404
+    return jsonify({"error": "Unknown file state."}), 500
 
 @app.route("/api/download/status")
 def api_download_status():
