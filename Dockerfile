@@ -4,8 +4,8 @@ FROM python:3.14-slim
 # Install system dependencies including FFmpeg
 RUN apt-get update && apt-get install -y \
     ffmpeg \
+    git \
     && rm -rf /var/lib/apt/lists/*
-
 # Set the working directory
 WORKDIR /app
 
