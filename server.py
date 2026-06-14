@@ -424,6 +424,12 @@ def api_download():
 
     return jsonify({"ok": True})
 
+@app.route("/api/download/file")
+def api_download_file():
+    last_file = download_state.get("last_file")
+    if last_file and os.path.exists(last_file):
+        return send_file(last_file, as_attachment=True)
+    return jsonify({"error": "No file found"}), 404
 
 @app.route("/api/download/status")
 def api_download_status():
