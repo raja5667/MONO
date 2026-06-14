@@ -460,7 +460,7 @@ def api_download():
 def api_download_file():
     last_file = download_state.get("last_file")
 
-    # Playlist folder: stream a zip built on-the-fly from the actual finished files
+    # Playlist folder: build a real zip file on disk, then send it
     if last_file and os.path.isdir(last_file):
         folder = last_file
         folder_name = os.path.basename(folder)
@@ -468,22 +468,37 @@ def api_download_file():
             f for f in os.listdir(folder) if f.lower().endswith(".mp3")
         )
 
-        def generate_zip():
-            buf = io.BytesIO()
-            with zipfile.ZipFile(buf, "w", zipfile.ZIP_DEFLATED) as zf:
-                for fname in mp3_files:
-                    fpath = os.path.join(folder, fname)
-                    if os.path.isfile(fpath):
-                        zf.write(fpath, arcname=os.path.join(folder_name, fname))
-            buf.seek(0)
-            yield buf.read()
+        # Write zip to a temp file so send_file can give it a proper Content-Length
+        tmp_zip = tempfile.NamedTemporaryFile(
+            suffix=".zip", delete=False, dir=tempfile.gettempdir()
+        )
+        tmp_zip.close()
+        zip_path = tmp_zip.name
+
+        with zipfile.ZipFile(zip_path, "w", zipfile.ZIP_DEFLATED) as zf:
+            for fname in mp3_files:
+                fpath = os.path.join(folder, fname)
+                if os.path.isfile(fpath):
+                    zf.write(fpath, arcname=os.path.join(folder_name, fname))
 
         zip_filename = folder_name + ".zip"
-        return Response(
-            generate_zip(),
+
+        def remove_tmp_zip(path):
+            try:
+                os.remove(path)
+            except Exception:
+                pass
+
+        response = send_file(
+            zip_path,
+            as_attachment=True,
+            download_name=zip_filename,
             mimetype="application/zip",
-            headers={"Content-Disposition": f'attachment; filename="{zip_filename}"'},
         )
+        @response.call_on_close
+        def cleanup_zip():
+            remove_tmp_zip(zip_path)
+        return response
 
     # Single track: serve the mp3
     if last_file and os.path.isfile(last_file):
