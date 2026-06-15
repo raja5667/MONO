@@ -198,6 +198,12 @@ def api_meta():
             "extract_flat": "in_playlist",
             "socket_timeout": 15,
             "cookiefile": os.path.join(SITE_DIR, "cookies.txt"),
+
+            "extractor_args": {
+                "youtube": {
+                    "player_client": ["android"]
+                }
+            },
         }
         with YoutubeDL(opts) as ydl:  # type: ignore[arg-type]
             info = ydl.extract_info(url, download=False)
@@ -292,6 +298,11 @@ def _make_opts(out_dir: str, noplaylist: bool = True, outtmpl: Optional[str] = N
         "format": "bestaudio/best",
         "outtmpl": outtmpl,
         "cookiefile": os.path.join(SITE_DIR, "cookies.txt"),
+        "extractor_args": {
+            "youtube": {
+                "player_client": ["android"]
+            }
+        },
         "noplaylist": noplaylist,
         "quiet": True,
         "no_warnings": True,
@@ -334,6 +345,12 @@ def _download_worker(url: str, out_dir: str):
             "noplaylist": False,
             "extract_flat": "in_playlist",
             "cookiefile": os.path.join(SITE_DIR, "cookies.txt"),
+
+            "extractor_args": {
+                "youtube": {
+                    "player_client": ["android"]
+                }
+            },
         }
         with download_lock:
             state["status"] = "Extracting metadata..."
