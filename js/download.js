@@ -23,6 +23,21 @@ downloadButtons.forEach(button => {
     });
 });
 
+async function updateFileSize() {
+    try {
+        const response = await fetch('software/YT-MP3 Pro.zip', { method: 'HEAD' });
+        const bytes = response.headers.get('Content-Length');
+        if (bytes) {
+            const mb = (bytes / (1024 * 1024)).toFixed(1);
+            document.getElementById('file-size').textContent = mb + ' MB';
+        }
+    } catch (e) {
+        console.warn('Could not fetch file size');
+    }
+}
+
+updateFileSize();
+
 document.addEventListener('DOMContentLoaded', () => {
     const downloadBtn = document.getElementById('scroll-download'); 
 
