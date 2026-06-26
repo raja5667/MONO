@@ -27,12 +27,14 @@ async function updateFileSize() {
     try {
         const response = await fetch('software/YT-MP3 Pro.zip', { method: 'HEAD' });
         const bytes = response.headers.get('Content-Length');
-        if (bytes) {
-            const mb = (bytes / (1024 * 1024)).toFixed(1);
+        if (bytes && parseInt(bytes) > 0) {
+            const mb = (parseInt(bytes) / (1024 * 1024)).toFixed(1);
             document.getElementById('file-size').textContent = mb + ' MB';
+        } else {
+            document.getElementById('file-size').textContent = '153.3 MB';
         }
     } catch (e) {
-        console.warn('Could not fetch file size');
+        document.getElementById('file-size').textContent = '153.3 MB';
     }
 }
 
