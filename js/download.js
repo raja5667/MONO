@@ -16,37 +16,36 @@ downloadButtons.forEach(button => {
 
         setTimeout(() => {
             window.location.href = "software/YT-MP3 Pro.zip";
-            textSpan.textContent = originalText; 
+            textSpan.textContent = originalText;
             button.style.pointerEvents = "auto";
             button.classList.remove("downloading");
         }, 2500);
     });
 });
 
-async function updateFileSize() {
+async function updateInfo() {
     try {
-        const response = await fetch('software/YT-MP3 Pro.zip', { method: 'HEAD' });
-        const bytes = response.headers.get('Content-Length');
-        if (bytes && parseInt(bytes) > 0) {
-            const mb = (parseInt(bytes) / (1024 * 1024)).toFixed(1);
-            document.getElementById('file-size').textContent = mb + ' MB';
-        } else {
-            document.getElementById('file-size').textContent = '153.3 MB';
-        }
+        const res = await fetch("version.json");
+        const data = await res.json();
+
+        document.getElementById("file-size").textContent = data.size;
+        document.getElementById("app-version").textContent = data.version;
+        document.getElementById("app-updated").textContent = data.updated;
+        document.getElementById("hero-version").textContent = data.version;
     } catch (e) {
-        document.getElementById('file-size').textContent = '153.3 MB';
+        console.warn("Could not load version info");
     }
 }
 
-updateFileSize();
+updateInfo();
 
 document.addEventListener('DOMContentLoaded', () => {
-    const downloadBtn = document.getElementById('scroll-download'); 
+    const downloadBtn = document.getElementById('scroll-download');
 
     downloadBtn.addEventListener('click', () => {
         // Wait for 2 seconds (2000 milliseconds)
         setTimeout(() => {
-            const section = document.getElementById('start'); 
+            const section = document.getElementById('start');
             if (section) {
                 section.scrollIntoView({ behavior: 'smooth' });
             }
