@@ -25,15 +25,27 @@ downloadButtons.forEach(button => {
 
 async function updateInfo() {
     try {
-        const res = await fetch("version.json");
+        const res = await fetch("https://api.github.com/repos/raja5667/YT-MP3/releases/latest");
         const data = await res.json();
 
-        document.getElementById("file-size").textContent = data.size;
-        document.getElementById("app-version").textContent = data.version;
-        document.getElementById("app-updated").textContent = data.updated;
-        document.getElementById("hero-version").textContent = data.version;
+        // Version (tag name, e.g. "v1.2.3")
+        const version = data.tag_name.replace(/^v/, "");
+
+        // Find the .exe asset
+        const asset = data.assets.find(a => a.name.endsWith(".exe"));
+        const sizeInMB = asset ? (asset.size / (1024 * 1024)).toFixed(1) + " MB" : "N/A";
+
+        // Format date e.g. "June 2026"
+        const date = new Date(data.published_at);
+        const updated = date.toLocaleString("en-US", { month: "long", year: "numeric" });
+
+        document.getElementById("file-size").textContent = sizeInMB;
+        document.getElementById("app-version").textContent = version;
+        document.getElementById("app-updated").textContent = updated;
+        document.getElementById("hero-version").textContent = version;
+
     } catch (e) {
-        console.warn("Could not load version info");
+        console.warn("Could not load version info from GitHub");
     }
 }
 
