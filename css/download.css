@@ -300,43 +300,6 @@
     color: #bdbdbd;
 }
 
-.footer {
-    padding: 2rem;
-    text-align: center;
-    border-top: 1px solid rgba(255, 255, 255, 0.1);
-}
-
-.footer-links {
-    display: flex;
-    justify-content: center;
-    gap: 2rem;
-    margin-bottom: 1rem;
-}
-
-.footer-links a {
-    color: #b8b8b8;
-    text-decoration: none;
-}
-
-.footer-links a:hover {
-    color: #a78afe;
-}
-
-.footer p img{
-    height: 25px;
-    width: 25px;
-}
-
-.footer p {
-    display: flex;
-    flex-direction: row;
-    color: #888;
-    font-size: 0.9rem;
-    align-items: center;
-    justify-content: center;
-    gap: 10px;
-}
-
 body {
     overflow: auto !important;
 }
