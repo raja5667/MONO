@@ -59,6 +59,11 @@ body::before {
     background: #555555;
 }
 
+body.no-scroll {
+    overflow: hidden !important;
+    touch-action: none;
+}
+
 .layer-blur {
     position: absolute;
     top: 20%;
@@ -84,7 +89,7 @@ header {
     align-items: center;
     justify-content: space-between;
     padding: 1rem 5rem;
-    z-index: 999;
+    z-index: 2000;
 }
 
 header h1 {
@@ -672,7 +677,7 @@ nav a:hover {
 
         transition: .4s ease;
 
-        z-index: 998;
+        z-index: 1000;
     }
 
     .menu-overlay.active {

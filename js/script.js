@@ -6,11 +6,13 @@ const logo = document.querySelector(".logo");
 hamburger.addEventListener("click", () => {
     nav.classList.toggle("active");
     overlay.classList.toggle("active");
+    document.body.classList.toggle("no-scroll");
 });
 
 overlay.addEventListener("click", () => {
     nav.classList.remove("active");
     overlay.classList.remove("active");
+    document.body.classList.remove("no-scroll");
 });
 
 if (logo) {
