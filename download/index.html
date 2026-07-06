@@ -22,6 +22,12 @@
 
 <body class="download-page-bg">
 
+    <div id="version-banner" class="version-banner" style="display:none;">
+        <span id="version-banner-text"></span>
+        <a id="version-banner-link" href="#" class="version-banner-link">Download Now</a>
+        <button id="version-banner-close" class="version-banner-close" aria-label="Dismiss">&times;</button>
+    </div>
+
     <div class="container">
 
         <header>
@@ -47,7 +53,7 @@
             <section class="hero">
 
                 <div class="version-tag">
-                    Latest Release • v<span id="hero-version"></span>
+                    Latest Release • v<span id="hero-version">Loading...</span>
                 </div>
 
                 <h1>
@@ -101,24 +107,23 @@
 
                         <div>
                             <span>Version</span>
-                            <p id="app-version"></p>
+                            <p id="app-version">Loading...</p>
                         </div>
                         <div>
                             <span>File Size</span>
-                            <p id="file-size"></p>
+                            <p id="file-size">Loading...</p>
                         </div>
                         <div>
                             <span>Platform</span>
                             <p>Windows 11/10</p>
                         </div>
-                        <div>
-                            <span>Updated</span>
-                            <p id="app-updated">June 2026</p>
-                        </div>
 
                     </div>
 
-                    <a href="#" class="large">
+                    <a href="#" id="download-now-btn" class="btn-download-now">
+                        <div class="btn-download-now-bars">
+                            <span></span><span></span><span></span><span></span><span></span>
+                        </div>
                         Download Now
                     </a>
 
