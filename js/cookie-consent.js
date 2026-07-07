@@ -1,6 +1,30 @@
 document.addEventListener("DOMContentLoaded", () => {
 
-    if(localStorage.getItem("cookieConsent")){
+    function getConsent() {
+        try {
+            const fromStorage = localStorage.getItem("cookieConsent");
+            if (fromStorage) return fromStorage;
+        } catch (e) {
+            console.warn("cookie-consent: localStorage read failed, falling back to cookie", e);
+        }
+        // Fallback: check a plain cookie in case localStorage is blocked
+        const match = document.cookie.match(/(?:^|; )cookieConsent=([^;]*)/);
+        return match ? decodeURIComponent(match[1]) : null;
+    }
+
+    function setConsent(value) {
+        try {
+            localStorage.setItem("cookieConsent", value);
+        } catch (e) {
+            console.warn("cookie-consent: localStorage write failed, using cookie fallback", e);
+        }
+        // Always also set a cookie (1 year) as a durable fallback,
+        // and so it works even if localStorage is unavailable/blocked.
+        const oneYear = 60 * 60 * 24 * 365;
+        document.cookie = `cookieConsent=${encodeURIComponent(value)}; max-age=${oneYear}; path=/; SameSite=Lax`;
+    }
+
+    if (getConsent()) {
         return;
     }
 
@@ -43,10 +67,7 @@ document.addEventListener("DOMContentLoaded", () => {
         .getElementById("cookie-accept")
         .addEventListener("click", () => {
 
-            localStorage.setItem(
-                "cookieConsent",
-                "accepted"
-            );
+            setConsent("accepted");
 
             banner.remove();
 
