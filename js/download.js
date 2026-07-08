@@ -40,7 +40,7 @@ async function updateInfo() {
         document.getElementById("hero-version").textContent = version;
 
         showVersionBannerIfNeeded(data, version, asset);
-        loadChecksum(data); // now synchronous — parses hash from data.body
+        loadChecksum(asset); // now synchronous — reads the .exe asset's digest field
 
     } catch (e) {
         console.warn("Could not load version info from GitHub:", e);
@@ -48,25 +48,24 @@ async function updateInfo() {
     }
 }
 
-// Looks for a SHA-256 hash inside the release notes body (e.g. a line like
-// "SHA256: <hash>" or just a bare 64-char hex string) and displays it.
+// Reads the SHA-256 checksum straight off the .exe asset object returned by
+// the GitHub API. GitHub computes and exposes this itself via `asset.digest`
+// (format: "sha256:<hex>") — no separate .sha256 file or extra request needed.
 //
-// NOTE: We deliberately do NOT fetch a separate .sha256/SHA256SUMS.txt asset.
-// GitHub's asset API redirects those requests to release-assets.githubusercontent.com,
-// and that redirected response does not send Access-Control-Allow-Origin, so the
-// browser blocks it with a CORS error every time. The releases/latest JSON call
-// (which we already made in updateInfo) DOES send proper CORS headers, so pulling
-// the hash from `data.body` avoids the extra request entirely.
-//
-// When publishing a release, just include a line like:
-//   SHA256: 3f5d...   (or SHA-256: 3f5d..., or the bare hash on its own line)
-function loadChecksum(data) {
-    if (!data.body) return; // no release notes -> nothing to parse
+// NOTE: We deliberately do NOT fetch a separate .sha256 asset file (even
+// though one may exist in the release). GitHub's asset API redirects those
+// download requests to release-assets.githubusercontent.com, and that
+// redirected response does not send Access-Control-Allow-Origin, so the
+// browser blocks it with a CORS error every time. The releases/latest JSON
+// call (already made in updateInfo) includes `digest` on each asset and DOES
+// send proper CORS headers, so this avoids the extra request entirely.
+function loadChecksum(asset) {
+    if (!asset || !asset.digest) return; // digest not available for this asset
 
-    const match = data.body.match(/[a-fA-F0-9]{64}/);
-    if (!match) return; // no hash found in the notes for this release
+    const match = asset.digest.match(/sha256:([a-fA-F0-9]{64})/i);
+    if (!match) return; // digest present but not in sha256 form
 
-    const hash = match[0];
+    const hash = match[1];
     const row = document.getElementById("checksum-row");
     const valueEl = document.getElementById("checksum-value");
     const copyBtn = document.getElementById("checksum-copy");
