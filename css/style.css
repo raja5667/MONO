@@ -112,7 +112,7 @@ header h1 {
 @keyframes fadeDown {
     from {
         opacity: 0;
-        transform: translateY(-40px);
+        transform: translateY(-30px);
     }
 
     to {
@@ -135,18 +135,6 @@ nav a {
     color: inherit;
     opacity: 0;
     animation: fadeDown 1.5s ease forwards;
-}
-
-@keyframes fadeDown {
-    from {
-        opacity: 0;
-        transform: translateY(-30px);
-    }
-
-    to {
-        opacity: 1;
-        transform: translateY(0);
-    }
 }
 
 nav a:nth-child(1) {

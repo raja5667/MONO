@@ -1,0 +1,4 @@
+User-agent: *
+Allow: /
+
+Sitemap: https://www.youtubemp3proh.dpdns.org/sitemap.xml

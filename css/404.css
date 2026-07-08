@@ -1,0 +1,85 @@
+.notfound-page-bg {
+    position: relative;
+    min-height: 100vh;
+    color: #fff;
+}
+
+.notfound-page-bg::before {
+    content: "";
+    position: fixed;
+    inset: 0;
+    z-index: -1;
+
+    background: radial-gradient(circle at bottom left,
+            #222d5a 0%,
+            #000000 60%);
+
+    background-size: cover;
+}
+
+.notfound-main {
+    text-align: center;
+    padding: 8rem 1rem 10rem;
+    max-width: 700px;
+    margin: 0 auto;
+}
+
+.notfound-code {
+    font-size: 8rem;
+    font-weight: 800;
+    line-height: 1;
+
+    background: linear-gradient(to right, #89a8f5, #e67d7d);
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+}
+
+.notfound-title {
+    font-size: 2.5rem;
+    margin: 1.5rem 0 1rem;
+
+    background: linear-gradient(to bottom, #ffffff, #888888);
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+}
+
+.notfound-text {
+    color: #bdbdbd;
+    font-size: 1.1rem;
+    line-height: 1.7;
+    max-width: 480px;
+    margin: 0 auto 2.5rem;
+}
+
+.notfound-actions {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 1.2rem;
+}
+
+.notfound-secondary-link {
+    color: #a78afe;
+    text-decoration: none;
+    font-size: 0.95rem;
+}
+
+.notfound-secondary-link:hover {
+    text-decoration: underline;
+}
+
+body {
+    overflow: auto !important;
+}
+
+@media (max-width: 768px) {
+    .notfound-code {
+        font-size: 5.5rem;
+    }
+
+    .notfound-title {
+        font-size: 1.8rem;
+    }
+}
