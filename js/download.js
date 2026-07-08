@@ -40,7 +40,7 @@ async function updateInfo() {
         document.getElementById("hero-version").textContent = version;
 
         showVersionBannerIfNeeded(data, version, asset);
-        loadChecksum(data);
+        loadChecksum(data); // now synchronous — parses hash from data.body
 
     } catch (e) {
         console.warn("Could not load version info from GitHub:", e);
@@ -48,57 +48,44 @@ async function updateInfo() {
     }
 }
 
-// Looks for a checksum file uploaded alongside the .exe in the release
-// (e.g. "YTMP3-Pro.exe.sha256" or "SHA256SUMS.txt") and displays the hash.
-// If no such file was uploaded for this release, the row just stays hidden.
-async function loadChecksum(data) {
-    const checksumAsset = data.assets.find(a =>
-        a.name.toLowerCase().endsWith(".sha256") ||
-        a.name.toLowerCase() === "sha256sums.txt"
-    );
+// Looks for a SHA-256 hash inside the release notes body (e.g. a line like
+// "SHA256: <hash>" or just a bare 64-char hex string) and displays it.
+//
+// NOTE: We deliberately do NOT fetch a separate .sha256/SHA256SUMS.txt asset.
+// GitHub's asset API redirects those requests to release-assets.githubusercontent.com,
+// and that redirected response does not send Access-Control-Allow-Origin, so the
+// browser blocks it with a CORS error every time. The releases/latest JSON call
+// (which we already made in updateInfo) DOES send proper CORS headers, so pulling
+// the hash from `data.body` avoids the extra request entirely.
+//
+// When publishing a release, just include a line like:
+//   SHA256: 3f5d...   (or SHA-256: 3f5d..., or the bare hash on its own line)
+function loadChecksum(data) {
+    if (!data.body) return; // no release notes -> nothing to parse
 
-    if (!checksumAsset) return; // no checksum published for this release
+    const match = data.body.match(/[a-fA-F0-9]{64}/);
+    if (!match) return; // no hash found in the notes for this release
 
-    try {
-        // Use the API asset endpoint (not browser_download_url) with the
-        // octet-stream Accept header. api.github.com sends CORS headers;
-        // the raw CDN (browser_download_url) does not, which silently
-        // blocks this fetch in the browser.
-        const res = await fetch(checksumAsset.url, {
-            headers: { "Accept": "application/octet-stream" }
+    const hash = match[0];
+    const row = document.getElementById("checksum-row");
+    const valueEl = document.getElementById("checksum-value");
+    const copyBtn = document.getElementById("checksum-copy");
+
+    if (!row || !valueEl || !copyBtn) return;
+
+    valueEl.textContent = hash;
+    row.style.display = "flex";
+
+    copyBtn.addEventListener("click", () => {
+        navigator.clipboard.writeText(hash).then(() => {
+            copyBtn.textContent = "Copied!";
+            copyBtn.classList.add("copied");
+            setTimeout(() => {
+                copyBtn.textContent = "Copy";
+                copyBtn.classList.remove("copied");
+            }, 2000);
         });
-        const text = (await res.text()).trim();
-
-        // Extract just the hex hash whether the file contains
-        // "HASH  filename.exe" (sha256sum format) or just the bare hash
-        const match = text.match(/[a-fA-F0-9]{64}/);
-        if (!match) return;
-
-        const hash = match[0];
-        const row = document.getElementById("checksum-row");
-        const valueEl = document.getElementById("checksum-value");
-        const copyBtn = document.getElementById("checksum-copy");
-
-        if (!row || !valueEl || !copyBtn) return;
-
-        valueEl.textContent = hash;
-        row.style.display = "flex";
-
-        copyBtn.addEventListener("click", () => {
-            navigator.clipboard.writeText(hash).then(() => {
-                copyBtn.textContent = "Copied!";
-                copyBtn.classList.add("copied");
-                setTimeout(() => {
-                    copyBtn.textContent = "Copy";
-                    copyBtn.classList.remove("copied");
-                }, 2000);
-            });
-        });
-
-    } catch (e) {
-        console.warn("Could not load checksum file:", e);
-        // Fail silently — checksum row just stays hidden
-    }
+    });
 }
 
 // Shown when the GitHub API is down, rate-limited, or the request otherwise fails.
