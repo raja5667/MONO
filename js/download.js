@@ -60,7 +60,13 @@ async function loadChecksum(data) {
     if (!checksumAsset) return; // no checksum published for this release
 
     try {
-        const res = await fetch(checksumAsset.browser_download_url);
+        // Use the API asset endpoint (not browser_download_url) with the
+        // octet-stream Accept header. api.github.com sends CORS headers;
+        // the raw CDN (browser_download_url) does not, which silently
+        // blocks this fetch in the browser.
+        const res = await fetch(checksumAsset.url, {
+            headers: { "Accept": "application/octet-stream" }
+        });
         const text = (await res.text()).trim();
 
         // Extract just the hex hash whether the file contains
