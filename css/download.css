@@ -324,6 +324,108 @@ header {
     }
 }
 
+.changelog {
+    margin-top: 1.5rem;
+    text-align: left;
+
+    background: rgba(255, 255, 255, 0.03);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    border-radius: 14px;
+    overflow: hidden;
+}
+
+.changelog summary {
+    list-style: none;
+    cursor: pointer;
+    padding: 0.9rem 1.2rem;
+
+    font-weight: 600;
+    color: #ffc978;
+    font-size: 0.95rem;
+
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+
+.changelog summary::-webkit-details-marker {
+    display: none;
+}
+
+.changelog summary::after {
+    content: "▾";
+    font-size: 0.9rem;
+    color: #ffc978;
+    transition: transform 0.2s ease;
+}
+
+.changelog[open] summary::after {
+    transform: rotate(180deg);
+}
+
+.changelog-body {
+    padding: 0 1.2rem 1.2rem;
+    color: #cfcfcf;
+    font-size: 0.9rem;
+    line-height: 1.7;
+    text-align: left;
+}
+
+.changelog-body h1,
+.changelog-body h2,
+.changelog-body h3 {
+    color: #fff;
+    font-size: 1rem;
+    margin: 0.9rem 0 0.4rem;
+    text-align: left;
+}
+
+.changelog-body h1:first-child,
+.changelog-body h2:first-child,
+.changelog-body h3:first-child {
+    margin-top: 0;
+}
+
+.changelog-body ul {
+    margin: 0.3rem 0 0.3rem 1.2rem;
+}
+
+.changelog-body li {
+    margin-bottom: 0.3rem;
+}
+
+.changelog-body strong {
+    color: #fff;
+}
+
+.changelog-body p {
+    margin-bottom: 0.5rem;
+}
+
+.changelog-body hr {
+    border: none;
+    border-top: 1px solid rgba(255, 255, 255, 0.1);
+    margin: 1rem 0;
+}
+
+.changelog-body blockquote {
+    margin: 0.6rem 0;
+    padding: 0.6rem 1rem;
+    border-left: 3px solid #ffc978;
+    background: rgba(255, 201, 120, 0.06);
+    border-radius: 0 8px 8px 0;
+    color: #e0d4b8;
+}
+
+.changelog-body code {
+    background: rgba(255, 255, 255, 0.08);
+    color: #89a8f5;
+    padding: 0.1rem 0.4rem;
+    border-radius: 5px;
+    font-family: 'Courier New', Courier, monospace;
+    font-size: 0.85em;
+}
+
 .btn-download-now {
     display: flex;
     width: max-content;

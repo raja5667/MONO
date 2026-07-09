@@ -41,6 +41,7 @@ async function updateInfo() {
 
         showVersionBannerIfNeeded(data, version, asset);
         loadChecksum(asset); // now synchronous — reads the .exe asset's digest field
+        loadChangelog(data);
 
     } catch (e) {
         console.warn("Could not load version info from GitHub:", e);
@@ -125,6 +126,108 @@ async function loadTotalDownloads() {
         console.warn("Could not load total download count:", e);
         // Fail silently — stat just stays hidden
     }
+}
+
+// Displays the release notes you write in GitHub's "release notes" box
+// (data.body) inside a collapsible "What's New" section. Converts basic
+// Markdown (headers, bullet lists, bold text, paragraphs) to HTML —
+// GitHub release notes are usually simple enough that a full Markdown
+// library isn't needed for this.
+function markdownToHtml(md) {
+    // Escape any raw HTML first so nothing unexpected gets injected
+    let html = md
+        .replace(/&/g, "&amp;")
+        .replace(/</g, "&lt;")
+        .replace(/>/g, "&gt;");
+
+    // Normalize line endings
+    html = html.replace(/\r\n/g, "\n");
+
+    const lines = html.split("\n");
+    const out = [];
+    let listBuffer = [];
+    let quoteBuffer = [];
+
+    function flushList() {
+        if (listBuffer.length) {
+            out.push(`<ul>${listBuffer.map(i => `<li>${i}</li>`).join("")}</ul>`);
+            listBuffer = [];
+        }
+    }
+
+    function flushQuote() {
+        if (quoteBuffer.length) {
+            out.push(`<blockquote>${quoteBuffer.join(" ")}</blockquote>`);
+            quoteBuffer = [];
+        }
+    }
+
+    function inline(text) {
+        return text
+            .replace(/\*\*(.+?)\*\*/g, "<strong>$1</strong>")
+            .replace(/`([^`]+?)`/g, "<code>$1</code>");
+    }
+
+    for (let rawLine of lines) {
+        const line = rawLine.trim();
+
+        // Blank line: flush any open blocks, otherwise ignore
+        if (line === "") {
+            flushList();
+            flushQuote();
+            continue;
+        }
+
+        // Horizontal rule: --- or *** or ___ (must be the whole line)
+        if (/^(-{3,}|\*{3,}|_{3,})$/.test(line)) {
+            flushList();
+            flushQuote();
+            out.push("<hr>");
+            continue;
+        }
+
+        // Headers: &gt;-escaped input means raw "#" is still literal here, safe to match
+        const h3 = line.match(/^### +(.*)$/);
+        const h2 = line.match(/^## +(.*)$/);
+        const h1 = line.match(/^# +(.*)$/);
+        if (h3) { flushList(); flushQuote(); out.push(`<h3>${inline(h3[1])}</h3>`); continue; }
+        if (h2) { flushList(); flushQuote(); out.push(`<h2>${inline(h2[1])}</h2>`); continue; }
+        if (h1) { flushList(); flushQuote(); out.push(`<h1>${inline(h1[1])}</h1>`); continue; }
+
+        // Blockquote: > text (already escaped to &gt; earlier)
+        const quote = line.match(/^&gt; ?(.*)$/);
+        if (quote) { flushList(); quoteBuffer.push(inline(quote[1])); continue; }
+
+        // Bullet list: - text or * text
+        const bullet = line.match(/^[-*] +(.*)$/);
+        if (bullet) { flushQuote(); listBuffer.push(inline(bullet[1])); continue; }
+
+        // Otherwise: plain paragraph line
+        flushList();
+        flushQuote();
+        out.push(`<p>${inline(line)}</p>`);
+    }
+
+    flushList();
+    flushQuote();
+
+    return out.join("\n");
+}
+
+function loadChangelog(data) {
+    const section = document.getElementById("changelog");
+    const summary = document.getElementById("changelog-summary");
+    const body = document.getElementById("changelog-body");
+
+    if (!section || !summary || !body) return;
+
+    const notes = (data.body || "").trim();
+    if (!notes) return; // no release notes written for this release — stay hidden
+
+    const version = data.tag_name.replace(/^v/, "");
+    summary.textContent = `What's New in v${version}`;
+    body.innerHTML = markdownToHtml(notes);
+    section.style.display = "block";
 }
 
 // Shown when the GitHub API is down, rate-limited, or the request otherwise fails.
