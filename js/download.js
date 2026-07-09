@@ -87,6 +87,46 @@ function loadChecksum(asset) {
     });
 }
 
+// Sums download_count across every .exe asset in every release ever published.
+// GitHub tracks this natively — no custom analytics backend needed.
+async function loadTotalDownloads() {
+    const REPO_API = "https://api.github.com/repos/raja5667/YT-MP3/releases";
+    let total = 0;
+    let page = 1;
+
+    try {
+        while (true) {
+            const res = await fetch(`${REPO_API}?per_page=100&page=${page}`);
+            if (!res.ok) break;
+
+            const releases = await res.json();
+            if (!releases.length) break; // no more pages
+
+            for (const release of releases) {
+                for (const asset of release.assets) {
+                    if (asset.name.toLowerCase().endsWith(".exe")) {
+                        total += asset.download_count;
+                    }
+                }
+            }
+
+            if (releases.length < 100) break; // last page reached
+            page++;
+        }
+
+        const statEl = document.getElementById("download-stat");
+        const countEl = document.getElementById("download-count");
+        if (statEl && countEl && total > 0) {
+            countEl.textContent = total.toLocaleString();
+            statEl.style.display = "inline-block";
+        }
+
+    } catch (e) {
+        console.warn("Could not load total download count:", e);
+        // Fail silently — stat just stays hidden
+    }
+}
+
 // Shown when the GitHub API is down, rate-limited, or the request otherwise fails.
 // Gives users a way to still get the software instead of just seeing "Unavailable".
 function showApiFallback() {
@@ -165,6 +205,7 @@ function showVersionBannerIfNeeded(data, version, asset) {
 }
 
 updateInfo();
+loadTotalDownloads();
 
 document.addEventListener('DOMContentLoaded', () => {
     const downloadBtn = document.getElementById('scroll-download');

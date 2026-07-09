@@ -50,6 +50,24 @@ header {
     backdrop-filter: blur(10px);
 }
 
+.download-stat {
+    width: max-content;
+    margin: 1rem auto 0;
+    padding: 0.6rem 1.3rem;
+
+    border-radius: 999px;
+    font-size: 0.9rem;
+    font-weight: 600;
+
+    color: #ffc978;
+    background: rgba(255, 201, 120, 0.08);
+    border: 1px solid rgba(255, 201, 120, 0.25);
+}
+
+.download-stat span {
+    color: #fff;
+}
+
 .hero h1 {
     font-size: 5rem;
     margin: 2rem 0;
