@@ -336,6 +336,23 @@ document.addEventListener('DOMContentLoaded', () => {
             }
         });
     }
+
+    // Version banner's "Download Now" already has a real href (set in
+    // showVersionBannerIfNeeded), so we do NOT preventDefault here — the
+    // real download still starts normally. This just adds the same
+    // "scroll to Getting Started" follow-up as the hero button, for
+    // consistent behavior between the two real download links.
+    const bannerLink = document.getElementById('version-banner-link');
+    if (bannerLink) {
+        bannerLink.addEventListener('click', () => {
+            setTimeout(() => {
+                const section = document.getElementById('start');
+                if (section) {
+                    section.scrollIntoView({ behavior: 'smooth' });
+                }
+            }, 2000);
+        });
+    }
 });
 
 // Reveal Animation
