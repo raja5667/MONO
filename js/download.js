@@ -322,6 +322,20 @@ document.addEventListener('DOMContentLoaded', () => {
             }
         }, 2000);
     });
+
+    // "Download Now" (info card) still points to "#" — instead of doing
+    // nothing, scroll back up to the real "Download For Windows" button
+    // in the hero section so the visitor lands on the actual working link.
+    const downloadNowBtn = document.getElementById('download-now-btn');
+    if (downloadNowBtn) {
+        downloadNowBtn.addEventListener('click', (e) => {
+            e.preventDefault();
+            const heroDownloadBtn = document.getElementById('scroll-download');
+            if (heroDownloadBtn) {
+                heroDownloadBtn.scrollIntoView({ behavior: 'smooth', block: 'center' });
+            }
+        });
+    }
 });
 
 // Reveal Animation
