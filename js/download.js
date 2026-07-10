@@ -2,24 +2,24 @@ const downloadButtons = document.querySelectorAll(".download-btn");
 
 downloadButtons.forEach(button => {
     button.addEventListener("click", () => {
+        // The button's href already points straight to the real GitHub
+        // download URL, so the browser starts that request immediately
+        // on click — we are NOT calling preventDefault() or delaying
+        // navigation here. Everything below is purely cosmetic feedback
+        // and runs alongside (not instead of) the real download starting.
         button.classList.add("downloading");
 
         const textSpan = button.querySelector("span");
         const originalText = textSpan.textContent;
 
-        textSpan.textContent = "Preparing Download...";
+        textSpan.textContent = "Starting Download...";
         button.style.pointerEvents = "none";
 
         setTimeout(() => {
-            textSpan.textContent = "Starting Download";
-        }, 1500);
-
-        setTimeout(() => {
-            window.location.href = "https://github.com/raja5667/YT-MP3/releases/latest/download/YTMP3-Pro.exe";
             textSpan.textContent = originalText;
             button.style.pointerEvents = "auto";
             button.classList.remove("downloading");
-        }, 2500);
+        }, 2000);
     });
 });
 
