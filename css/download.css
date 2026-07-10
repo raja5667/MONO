@@ -68,6 +68,55 @@ header {
     color: #fff;
 }
 
+.rating-badge {
+    width: max-content;
+    margin: 0.7rem auto 0;
+    padding: 0.6rem 1.3rem;
+
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+
+    border-radius: 999px;
+    font-size: 0.9rem;
+    font-weight: 600;
+
+    color: #ffc978;
+    background: rgba(255, 201, 120, 0.08);
+    border: 1px solid rgba(255, 201, 120, 0.25);
+}
+
+.rating-count {
+    color: #bdbdbd;
+    font-weight: 500;
+}
+
+/* Two stacked star rows: a dim grey row underneath, a gold row on top
+   clipped to a width matching the average rating out of 5. This gives
+   the same "partial fill" look Play Store uses for 4.5-style averages,
+   with no icon font or SVG needed. */
+.rating-stars {
+    position: relative;
+    display: inline-block;
+    font-size: 1rem;
+    line-height: 1;
+    letter-spacing: 2px;
+}
+
+.rating-stars-back {
+    color: rgba(255, 255, 255, 0.2);
+}
+
+.rating-stars-front {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 0%;
+    overflow: hidden;
+    white-space: nowrap;
+    color: #ffc978;
+}
+
 .hero h1 {
     font-size: 5rem;
     margin: 2rem 0;

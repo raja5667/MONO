@@ -1,3 +1,7 @@
+// TODO: replace with your real Firebase Realtime Database URL once created.
+// Must match the RATINGS_DB_URL used in main.py in the desktop app exactly.
+const RATINGS_DB_URL = "https://ytmp3-pro-default-rtdb.asia-southeast1.firebasedatabase.app";
+
 const downloadButtons = document.querySelectorAll(".download-btn");
 
 downloadButtons.forEach(button => {
@@ -279,6 +283,44 @@ function showApiFallback() {
     }
 }
 
+// Reads every rating the desktop app has submitted to Firebase (each one is
+// just {stars, ts}), averages them, and renders it as a Play-Store-style
+// badge: partial-fill stars + numeric average + rating count.
+async function loadRatingSummary() {
+    try {
+        const res = await fetch(`${RATINGS_DB_URL}/ratings.json`);
+        const data = await res.json();
+
+        if (!data) return; // no ratings submitted yet -- badge stays hidden
+
+        const values = Object.values(data)
+            .map(r => Number(r.stars))
+            .filter(n => n >= 1 && n <= 5);
+
+        if (!values.length) return;
+
+        const avg = values.reduce((a, b) => a + b, 0) / values.length;
+        const count = values.length;
+
+        const badge = document.getElementById("rating-badge");
+        const avgEl = document.getElementById("rating-average");
+        const countEl = document.getElementById("rating-count");
+        const starsFront = document.getElementById("rating-stars-front");
+
+        if (!badge || !avgEl || !countEl || !starsFront) return;
+
+        avgEl.textContent = avg.toFixed(1);
+        countEl.textContent = count.toLocaleString();
+        starsFront.style.width = `${(avg / 5) * 100}%`;
+        badge.style.display = "inline-flex";
+
+    } catch (e) {
+        console.warn("Could not load rating summary:", e);
+        // Fail silently -- badge just stays hidden, same pattern as
+        // loadTotalDownloads() above
+    }
+}
+
 function showVersionBannerIfNeeded(data, version, asset) {
     const banner = document.getElementById("version-banner");
     const bannerText = document.getElementById("version-banner-text");
@@ -309,6 +351,7 @@ function showVersionBannerIfNeeded(data, version, asset) {
 
 updateInfo();
 loadTotalDownloads();
+loadRatingSummary();
 
 document.addEventListener('DOMContentLoaded', () => {
     const downloadBtn = document.getElementById('scroll-download');
