@@ -429,3 +429,47 @@ cards.forEach(card => {
     observer.observe(card);
 
 });
+
+// Preview section: switch between MP3 / MP4 screenshots
+const previewTabs = document.querySelectorAll(".preview-tab");
+const previewImgs = document.querySelectorAll(".screenshot-img");
+const previewPlaceholders = document.querySelectorAll(".screenshot-placeholder");
+
+previewTabs.forEach(tab => {
+    tab.addEventListener("click", () => {
+        previewTabs.forEach(t => t.classList.remove("active"));
+        tab.classList.add("active");
+
+        const targetId = tab.dataset.target;
+        previewImgs.forEach(img => {
+            img.classList.toggle("active", img.id === targetId);
+        });
+    });
+});
+
+// If a screenshot file hasn't been added to /img/ yet, hide the broken
+// image and show a friendly placeholder in its place instead. Once the
+// real screenshot-mp3.png / screenshot-mp4.png files are added this
+// simply stops firing, since the images will load successfully.
+previewImgs.forEach(img => {
+    img.addEventListener("error", () => {
+        img.style.display = "none";
+        const placeholder = document.querySelector(`.screenshot-placeholder[data-for="${img.id}"]`);
+        if (placeholder && img.classList.contains("active")) {
+            placeholder.classList.add("show");
+        }
+    }, { once: true });
+});
+
+// Keep placeholder visibility in sync when switching tabs (only show the
+// placeholder for whichever screenshot is currently active and missing).
+previewTabs.forEach(tab => {
+    tab.addEventListener("click", () => {
+        const targetId = tab.dataset.target;
+        previewPlaceholders.forEach(ph => {
+            const img = document.getElementById(ph.dataset.for);
+            const isMissing = img && img.style.display === "none";
+            ph.classList.toggle("show", ph.dataset.for === targetId && isMissing);
+        });
+    });
+});
