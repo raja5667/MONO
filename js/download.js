@@ -338,11 +338,11 @@ function showVersionBannerIfNeeded(data, version, asset) {
     const bannerLink = document.getElementById("version-banner-link");
     const bannerClose = document.getElementById("version-banner-close");
 
-    const DAYS_TO_SHOW = 15;
+    const DAYS_TO_SHOW = 30;
     const publishedAt = new Date(data.published_at);
     const daysSinceRelease = (Date.now() - publishedAt.getTime()) / (1000 * 60 * 60 * 24);
 
-    // Outside the 15-day window since this version was released -> never show it
+    // Outside the 30-day window since this version was released -> never show it
     if (daysSinceRelease > DAYS_TO_SHOW) return;
 
     // Already dismissed this exact version -> don't show it again
