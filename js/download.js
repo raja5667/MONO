@@ -90,6 +90,17 @@ function loadChecksum(asset) {
             }, 2000);
         });
     });
+
+    // Link straight to this exact file's VirusTotal report by hash. This
+    // only resolves once the file with this exact hash has actually been
+    // uploaded to VirusTotal at least once (e.g. manually, right before
+    // publishing the release) — VT looks up by hash, it doesn't scan on
+    // the fly from this link.
+    const vtRow = document.getElementById("virustotal-row");
+    if (vtRow) {
+        vtRow.href = `https://www.virustotal.com/gui/file/${hash}`;
+        vtRow.style.display = "flex";
+    }
 }
 
 // Sums download_count across every .exe asset in every release ever published.

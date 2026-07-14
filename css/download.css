@@ -373,6 +373,48 @@ header {
     }
 }
 
+.virustotal-row {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+
+    margin-top: 0.7rem;
+    padding: 0.7rem 1.2rem;
+
+    background: rgba(120, 200, 140, 0.06);
+    border: 1px solid rgba(120, 200, 140, 0.2);
+    border-radius: 14px;
+
+    text-decoration: none;
+    transition: 0.2s ease;
+}
+
+.virustotal-row:hover {
+    background: rgba(120, 200, 140, 0.12);
+    border-color: rgba(120, 200, 140, 0.35);
+}
+
+.virustotal-icon {
+    font-size: 0.95rem;
+}
+
+.virustotal-label {
+    color: #8fe0a8;
+    font-weight: 600;
+    font-size: 0.85rem;
+}
+
+.virustotal-link-text {
+    color: #888;
+    font-size: 0.8rem;
+}
+
+.virustotal-row:hover .virustotal-link-text {
+    color: #aaa;
+}
+
 .changelog {
     margin-top: 1.5rem;
     text-align: left;
