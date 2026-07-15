@@ -107,13 +107,17 @@ function loadChecksum(asset) {
 // GitHub tracks this natively — no custom analytics backend needed.
 async function loadTotalDownloads() {
     const REPO_API = "https://api.github.com/repos/raja5667/YT-MP3/releases";
+    const CACHE_KEY = "cachedTotalDownloads";
     let total = 0;
     let page = 1;
+
+    const statEl = document.getElementById("download-stat");
+    const countEl = document.getElementById("download-count");
 
     try {
         while (true) {
             const res = await fetch(`${REPO_API}?per_page=100&page=${page}`);
-            if (!res.ok) break;
+            if (!res.ok) throw new Error(`GitHub API returned ${res.status}`);
 
             const releases = await res.json();
             if (!releases.length) break; // no more pages
@@ -130,16 +134,23 @@ async function loadTotalDownloads() {
             page++;
         }
 
-        const statEl = document.getElementById("download-stat");
-        const countEl = document.getElementById("download-count");
         if (statEl && countEl && total > 0) {
             countEl.textContent = total.toLocaleString();
             statEl.style.display = "inline-block";
+            localStorage.setItem(CACHE_KEY, String(total));
         }
 
     } catch (e) {
-        console.warn("Could not load total download count:", e);
-        // Fail silently — stat just stays hidden
+        console.warn("Could not load total download count (likely GitHub API rate limit):", e);
+        // Fall back to the last successfully fetched count, if we have one,
+        // instead of hiding the stat entirely. This commonly happens on
+        // shared IPs (VPNs, some ISPs) that have already used up GitHub's
+        // 60 requests/hour unauthenticated rate limit.
+        const cached = localStorage.getItem(CACHE_KEY);
+        if (statEl && countEl && cached) {
+            countEl.textContent = Number(cached).toLocaleString();
+            statEl.style.display = "inline-block";
+        }
     }
 }
 
