@@ -334,7 +334,7 @@ header {
 }
 
 .checksum-value {
-    font-family: 'Courier New', Courier, monospace;
+    font-family: 'Courier New', Courier, YTMP3 Prospace;
     font-size: 0.8rem;
     color: #cfcfcf;
     background: rgba(255, 255, 255, 0.04);
@@ -513,7 +513,7 @@ header {
     color: #89a8f5;
     padding: 0.1rem 0.4rem;
     border-radius: 5px;
-    font-family: 'Courier New', Courier, monospace;
+    font-family: 'Courier New', Courier, YTMP3 Prospace;
     font-size: 0.85em;
 }
 
@@ -902,4 +902,53 @@ body {
         padding: 0 1rem;
     }
 
+}
+
+.trust-section {
+    margin-top: 4rem;
+    text-align: center;
+}
+
+.trust-section h2 {
+    margin-bottom: 2rem;
+}
+
+.trust-grid {
+    display: flex;
+    gap: 1rem;
+    flex-wrap: wrap;
+    justify-content: center;
+}
+
+.trust-card {
+    min-width: 180px;
+    flex: 1 1 200px;
+    max-width: 240px;
+
+    padding: 1.5rem 1rem;
+
+    background: rgba(255, 255, 255, 0.03);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    border-radius: 16px;
+
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.3rem;
+}
+
+.trust-icon {
+    font-size: 1.6rem;
+    margin-bottom: 0.3rem;
+}
+
+.trust-value {
+    font-size: 1.6rem;
+    font-weight: 700;
+    color: #eee4b6;
+}
+
+.trust-label {
+    font-size: 0.85rem;
+    color: #999;
 }

@@ -140,6 +140,11 @@ async function loadTotalDownloads() {
             localStorage.setItem(CACHE_KEY, String(total));
         }
 
+        const trustDownloads = document.getElementById("trust-downloads");
+        if (trustDownloads && total > 0) {
+            trustDownloads.textContent = total.toLocaleString();
+        }
+
     } catch (e) {
         console.warn("Could not load total download count (likely GitHub API rate limit):", e);
         // Fall back to the last successfully fetched count, if we have one,
@@ -150,6 +155,10 @@ async function loadTotalDownloads() {
         if (statEl && countEl && cached) {
             countEl.textContent = Number(cached).toLocaleString();
             statEl.style.display = "inline-block";
+        }
+        const trustDownloadsFallback = document.getElementById("trust-downloads");
+        if (trustDownloadsFallback && cached) {
+            trustDownloadsFallback.textContent = Number(cached).toLocaleString();
         }
     }
 }
@@ -333,6 +342,9 @@ async function loadRatingSummary() {
 
         avgEl.textContent = avg.toFixed(1);
         countEl.textContent = count.toLocaleString();
+
+        const trustRating = document.getElementById("trust-rating");
+        if (trustRating) trustRating.textContent = avg.toFixed(1);
         starsFront.style.width = `${(avg / 5) * 100}%`;
         badge.style.display = "inline-flex";
 
